@@ -69,9 +69,9 @@ inline void SetActivePalette(byte newActivePal, int startLine, int endLine)
     }
 }
 
-inline void SetPaletteEntry(byte paletteIndex, byte index, byte r, byte g, byte b)
+inline void SetPaletteEntry(sbyte paletteIndex, byte index, byte r, byte g, byte b)
 {
-    if (paletteIndex != 0xFF) {
+    if (paletteIndex != (sbyte)0xFF) {
         PACK_RGB888(fullPalette[paletteIndex][index], r, g, b);
         fullPalette32[paletteIndex][index].r = r;
         fullPalette32[paletteIndex][index].g = g;

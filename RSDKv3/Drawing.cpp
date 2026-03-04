@@ -260,11 +260,13 @@ int InitRenderDevice()
 
 #if RETRO_USING_OPENGL
     // Init GL
+#if RETRO_USING_SDL2
     Engine.glContext = SDL_GL_CreateContext(Engine.window);
 
     SDL_GL_SetSwapInterval(Engine.vsync ? 1 : 0);
+#endif
 
-#if RETRO_PLATFORM != RETRO_ANDROID && RETRO_PLATFORM != RETRO_OSX
+#if RETRO_PLATFORM != RETRO_ANDROID && RETRO_PLATFORM != RETRO_OSX && RETRO_PLATFORM != RETRO_PS3
     // glew Setup
     GLenum err = glewInit();
     if (err != GLEW_OK && err != GLEW_ERROR_NO_GLX_DISPLAY) {
@@ -339,15 +341,17 @@ int InitRenderDevice()
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, SCREEN_XSIZE * 2, SCREEN_YSIZE * 2, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 
     for (int c = 0; c < 0x10000; ++c) {
-        int r               = (c & 0b1111100000000000) >> 8;
-        int g               = (c & 0b0000011111100000) >> 3;
-        int b               = (c & 0b0000000000011111) << 3;
+        int r               = (c & 0xF800) >> 8;
+        int g               = (c & 0x07E0) >> 3;
+        int b               = (c & 0x001F) << 3;
         gfxPalette16to32[c] = (0xFF << 24) | (b << 16) | (g << 8) | (r << 0);
     }
     SetScreenDimensions(SCREEN_XSIZE, SCREEN_YSIZE, (int)(SCREEN_XSIZE * Engine.windowScale), (int)(SCREEN_YSIZE * Engine.windowScale));
 #endif
 
-#if RETRO_USING_SDL2 && (RETRO_PLATFORM == RETRO_iOS || RETRO_PLATFORM == RETRO_ANDROID || RETRO_PLATFORM == RETRO_WP7)
+#if RETRO_PLATFORM == RETRO_PS3
+    SetScreenDimensions(SCREEN_XSIZE, SCREEN_YSIZE, SCREEN_XSIZE, SCREEN_YSIZE);
+#elif RETRO_USING_SDL2 && (RETRO_PLATFORM == RETRO_iOS || RETRO_PLATFORM == RETRO_ANDROID || RETRO_PLATFORM == RETRO_WP7)
     SDL_DisplayMode mode;
     SDL_GetDesktopDisplayMode(0, &mode);
     int vw = mode.w;
@@ -357,7 +361,7 @@ int InitRenderDevice()
         vh = mode.w;
     }
     SetScreenDimensions(SCREEN_XSIZE, SCREEN_YSIZE, (int)vw, (int)vh);
-#elif RETRO_USING_SDL2 && RETRO_USING_OPENGL
+#elif RETRO_USING_SDL2 && RETRO_USING_OPENGL && RETRO_PLATFORM != RETRO_PS3
     int drawableWidth, drawableHeight;
     SDL_GL_GetDrawableSize(Engine.window, &drawableWidth, &drawableHeight);
     SetScreenDimensions(SCREEN_XSIZE, SCREEN_YSIZE, drawableWidth, drawableHeight);
@@ -419,7 +423,7 @@ void FlipScreen()
 
 #if !RETRO_USE_ORIGINAL_CODE
         if (dimAmount < 1.0 && stageMode != STAGEMODE_PAUSED)
-            DrawRectangle(0, 0, SCREEN_XSIZE, SCREEN_YSIZE, 0, 0, 0, 0xFF - (dimAmount * 0xFF));
+            DrawRectangle(0, 0, SCREEN_XSIZE, SCREEN_YSIZE, 0, 0, 0, (int)(0xFF - (dimAmount * 0xFF)));
 #endif
         if (Engine.gameMode == ENGINE_VIDEOWAIT) {
             FlipScreenVideo();
@@ -640,7 +644,7 @@ void FlipScreen()
     }
     else if (renderType == RENDER_HW) {
         if (dimAmount < 1.0 && stageMode != STAGEMODE_PAUSED)
-            DrawRectangle(0, 0, SCREEN_XSIZE, SCREEN_YSIZE, 0, 0, 0, 0xFF - (dimAmount * 0xFF));
+            DrawRectangle(0, 0, SCREEN_XSIZE, SCREEN_YSIZE, 0, 0, 0, (int)(0xFF - (dimAmount * 0xFF)));
 
         bool fb             = Engine.useFBTexture;
         Engine.useFBTexture = Engine.useFBTexture || stageMode == STAGEMODE_PAUSED && Engine.gameMode != ENGINE_DEVMENU;
@@ -680,7 +684,7 @@ void FlipScreenFB()
         glEnable(GL_BLEND);
 
         // Init 3D Plane
-        glViewport(floor3DTop, 0, floor3DBottom, SCREEN_XSIZE);
+        glViewport((GLint)floor3DTop, 0, (GLsizei)floor3DBottom, SCREEN_XSIZE);
         glPushMatrix();
         glLoadIdentity();
         CalcPerspective(1.8326f, viewAspect, 0.1f, 2000.0f);
@@ -755,7 +759,7 @@ void FlipScreenNoFB()
         glEnable(GL_BLEND);
 
         // Init 3D Plane
-        glViewport(viewOffsetX, floor3DTop, viewWidth, floor3DBottom);
+        glViewport(viewOffsetX, (GLint)floor3DTop, viewWidth, (GLsizei)floor3DBottom);
         glPushMatrix();
         glLoadIdentity();
         CalcPerspective(1.8326f, viewAspect, 0.1f, 2000.0f);
@@ -1035,12 +1039,15 @@ void ReleaseRenderDevice()
     }
 
 #if RETRO_USING_OPENGL
+#if RETRO_USING_SDL2
 	if (Engine.glContext) {
 		for (int i = 0; i < HW_TEXTURE_COUNT; i++) glDeleteTextures(1, &gfxTextureID[i]);
-#if RETRO_USING_SDL2
 		SDL_GL_DeleteContext(Engine.glContext);
-#endif
 	}
+#endif
+#if RETRO_PLATFORM == RETRO_PS3
+    for (int i = 0; i < HW_TEXTURE_COUNT; i++) glDeleteTextures(1, &gfxTextureID[i]);
+#endif
 #endif
 
 #if RETRO_USING_SDL2
@@ -1053,6 +1060,7 @@ void ReleaseRenderDevice()
 
 void SetFullScreen(bool fs)
 {
+    float width = 0, height = 0;
 
     if (fs) {
 #if RETRO_USING_SDL1
@@ -1063,45 +1071,53 @@ void SetFullScreen(bool fs)
 #if RETRO_USING_SDL2
         SDL_RestoreWindow(Engine.window);
         SDL_SetWindowFullscreen(Engine.window, SDL_WINDOW_FULLSCREEN_DESKTOP);
-#endif
+
         SDL_DisplayMode mode;
-        SDL_GetDesktopDisplayMode(0, &mode);
+        if (SDL_GetDesktopDisplayMode(0, &mode) == 0) {
+            int w = mode.w;
+            int h = mode.h;
+            if (mode.h > mode.w) {
+                w = mode.h;
+                h = mode.w;
+            }
 
-        int w = mode.w;
-        int h = mode.h;
-        if (mode.h > mode.w) {
-            w = mode.h;
-            h = mode.w;
+            float scaleH        = (mode.h / (float)SCREEN_YSIZE);
+            Engine.useFBTexture = ((float)scaleH - (int)scaleH) != 0 || Engine.scalingMode;
+
+            width  = (float)w;
+            height = (float)h;
         }
+#endif
 
-        float scaleH        = (mode.h / (float)SCREEN_YSIZE);
-        Engine.useFBTexture = ((float)scaleH - (int)scaleH) != 0 || Engine.scalingMode;
-
-        float width = w, height = h;
-#if RETRO_PLATFORM != RETRO_iOS && RETRO_PLATFORM != RETRO_ANDROID
+#if RETRO_PLATFORM == RETRO_PS3
+        width  = (float)SCREEN_XSIZE;
+        height = (float)SCREEN_YSIZE;
+#elif RETRO_PLATFORM != RETRO_iOS && RETRO_PLATFORM != RETRO_ANDROID
         int winW = 0, winH = 0;
+#if RETRO_USING_SDL2
 #if RETRO_USING_OPENGL
         SDL_GL_GetDrawableSize(Engine.window, &winW, &winH);
 #else
         SDL_GetRendererOutputSize(Engine.renderer, &winW, &winH);
 #endif
+#endif
 
-        scaleH       = winH / (float)SCREEN_YSIZE;
+        float scaleH = winH / (float)SCREEN_YSIZE;
 
-        width        = scaleH * (float)SCREEN_XSIZE;
-        height       = winH;
+        width  = scaleH * (float)SCREEN_XSIZE;
+        height = (float)winH;
 
         if (width > winW) {
-            width = winW;
+            width = (float)winW;
 
             float scaleW = winW / (float)SCREEN_XSIZE;
-            height = scaleW * (float)SCREEN_YSIZE;
+            height       = scaleW * (float)SCREEN_YSIZE;
 
             viewOffsetX = 0;
-            viewOffsetY = abs(winH - height) / 2;
+            viewOffsetY = abs(winH - (int)height) / 2;
         }
         else {
-            viewOffsetX = abs(winW - width) / 2;
+            viewOffsetX = abs(winW - (int)width) / 2;
             viewOffsetY = 0;
         }
 
@@ -1132,6 +1148,8 @@ void SetFullScreen(bool fs)
 #else
         SetScreenDimensions(SCREEN_XSIZE, SCREEN_YSIZE, (int)(SCREEN_XSIZE * Engine.windowScale), (int)(SCREEN_YSIZE * Engine.windowScale));
 #endif
+#elif RETRO_PLATFORM == RETRO_PS3
+        SetScreenDimensions(SCREEN_XSIZE, SCREEN_YSIZE, SCREEN_XSIZE, SCREEN_YSIZE);
 #endif
     }
 }
@@ -1385,47 +1403,47 @@ void SetScreenDimensions(int width, int height, int winWidth, int winHeight)
         widthFix++;
     }
 
-    screenRect[0].x = -1;
-    screenRect[0].y = 1;
-    screenRect[0].u = 0;
-    screenRect[0].v = SCREEN_XSIZE * 2 * widthFix;
+    screenRect[0].x = (short)-1;
+    screenRect[0].y = (short)1;
+    screenRect[0].u = (short)0;
+    screenRect[0].v = (short)(SCREEN_XSIZE * 2 * widthFix);
 
-    screenRect[1].x = 1;
-    screenRect[1].y = 1;
-    screenRect[1].u = 0;
-    screenRect[1].v = 0;
+    screenRect[1].x = (short)1;
+    screenRect[1].y = (short)1;
+    screenRect[1].u = (short)0;
+    screenRect[1].v = (short)0;
 
-    screenRect[2].x = -1;
-    screenRect[2].y = -1;
-    screenRect[2].u = (SCREEN_YSIZE - 0.5) * 4;
-    screenRect[2].v = SCREEN_XSIZE * 2 * widthFix;
+    screenRect[2].x = (short)-1;
+    screenRect[2].y = (short)-1;
+    screenRect[2].u = (short)(((float)SCREEN_YSIZE - 0.5f) * 4.0f);
+    screenRect[2].v = (short)(SCREEN_XSIZE * 2 * widthFix);
 
-    screenRect[3].x = 1;
-    screenRect[3].y = -1;
-    screenRect[3].u = (SCREEN_YSIZE - 0.5) * 4;
-    screenRect[3].v = 0;
+    screenRect[3].x = (short)1;
+    screenRect[3].y = (short)-1;
+    screenRect[3].u = (short)(((float)SCREEN_YSIZE - 0.5f) * 4.0f);
+    screenRect[3].v = (short)0;
 
     // HW_TEXTURE_SIZE == 1.0 due to the scaling we did on the Texture Matrix earlier
 
-    retroScreenRect[0].x = -1;
-    retroScreenRect[0].y = 1;
-    retroScreenRect[0].u = 0;
-    retroScreenRect[0].v = 0;
+    retroScreenRect[0].x = (short)-1;
+    retroScreenRect[0].y = (short)1;
+    retroScreenRect[0].u = (short)0;
+    retroScreenRect[0].v = (short)0;
 
-    retroScreenRect[1].x = 1;
-    retroScreenRect[1].y = 1;
-    retroScreenRect[1].u = HW_TEXTURE_SIZE;
-    retroScreenRect[1].v = 0;
+    retroScreenRect[1].x = (short)1;
+    retroScreenRect[1].y = (short)1;
+    retroScreenRect[1].u = (short)HW_TEXTURE_SIZE;
+    retroScreenRect[1].v = (short)0;
 
-    retroScreenRect[2].x = -1;
-    retroScreenRect[2].y = -1;
-    retroScreenRect[2].u = 0;
-    retroScreenRect[2].v = HW_TEXTURE_SIZE;
+    retroScreenRect[2].x = (short)-1;
+    retroScreenRect[2].y = (short)-1;
+    retroScreenRect[2].u = (short)0;
+    retroScreenRect[2].v = (short)HW_TEXTURE_SIZE;
 
-    retroScreenRect[3].x = 1;
-    retroScreenRect[3].y = -1;
-    retroScreenRect[3].u = HW_TEXTURE_SIZE;
-    retroScreenRect[3].v = HW_TEXTURE_SIZE;
+    retroScreenRect[3].x = (short)1;
+    retroScreenRect[3].y = (short)-1;
+    retroScreenRect[3].u = (short)HW_TEXTURE_SIZE;
+    retroScreenRect[3].v = (short)HW_TEXTURE_SIZE;
 
     ScaleViewport(winWidth, winHeight);
 }
@@ -1439,11 +1457,11 @@ void ScaleViewport(int width, int height)
     float virtualAspect = (float)width / height;
     float realAspect    = (float)viewWidth / viewHeight;
     if (virtualAspect < realAspect) {
-        virtualHeight = viewHeight * ((float)width / viewWidth);
+            virtualHeight = (int)(viewHeight * ((float)width / viewWidth));
         virtualY      = (height - virtualHeight) >> 1;
     }
     else {
-        virtualWidth = viewWidth * ((float)height / viewHeight);
+            virtualWidth = (int)(viewWidth * ((float)height / viewHeight));
         virtualX     = (width - virtualWidth) >> 1;
     }
 }

@@ -663,7 +663,7 @@ void RoofCollision(Player *player, CollisionSensor *sensor)
 
                             sensor->YPos     = tsm1 - collisionMasks[player->collisionPlane].floorMasks[c] + (chunkY << 7) + (tileY << 4);
                             sensor->collided = true;
-                            sensor->angle    = (byte)(-0x80 - (collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF));
+                            sensor->angle    = (byte)(0x80 - (sbyte)(collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF));
                             break;
                         }
                         case FLIP_XY: {
@@ -673,7 +673,7 @@ void RoofCollision(Player *player, CollisionSensor *sensor)
 
                             sensor->YPos     = tsm1 - collisionMasks[player->collisionPlane].floorMasks[c] + (chunkY << 7) + (tileY << 4);
                             sensor->collided = true;
-                            sensor->angle    = 0x100 - (byte)(-0x80 - (collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF));
+                            sensor->angle    = (byte)(0x80 + (sbyte)(collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF));
                             break;
                         }
                     }
@@ -1200,7 +1200,6 @@ void ProcessPathGrip(Player *player)
                     player->collisionMode = CMODE_FLOOR;
                 if (sensors[0].angle < 0x9E)
                     player->collisionMode = CMODE_ROOF;
-                break;
                 break;
             }
             case CMODE_ROOF: {

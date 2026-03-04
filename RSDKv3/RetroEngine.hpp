@@ -86,7 +86,6 @@ typedef unsigned int uint;
 #elif defined __linux__
 #define RETRO_PLATFORM (RETRO_LINUX)
 #elif defined(__PS3__) || defined(PS3) || defined(__CELLOS_LV2__)
-#include "ps3_compat.h"
 #define RETRO_PLATFORM (RETRO_PS3)
 #else
 #define RETRO_PLATFORM (RETRO_WIN) // Default
@@ -196,6 +195,23 @@ typedef unsigned int uint;
 #include <GL/glew.h>
 #elif RETRO_PLATFORM == RETRO_PS3
 // PSGL is included in ps3_compat.h
+#define glGenFramebuffers      glGenFramebuffersOES
+#define glBindFramebuffer      glBindFramebufferOES
+#define glFramebufferTexture2D glFramebufferTexture2DOES
+#define glDeleteFramebuffers   glDeleteFramebuffersOES
+#define glOrtho                glOrthof
+
+#define GL_FRAMEBUFFER         GL_FRAMEBUFFER_OES
+#define GL_COLOR_ATTACHMENT0   GL_COLOR_ATTACHMENT0_OES
+#define GL_FRAMEBUFFER_BINDING GL_FRAMEBUFFER_BINDING_OES
+
+#ifndef GL_COLOR_ATTACHMENT0
+#define GL_COLOR_ATTACHMENT0 GL_COLOR_ATTACHMENT0_OES
+#endif
+
+#ifndef GL_COLOR_ATTACHMENT0_OES
+#define GL_COLOR_ATTACHMENT0_OES 0x8CE0
+#endif
 #endif
 #endif
 
@@ -362,6 +378,7 @@ enum RetroBytecodeFormat {
 #define SCREEN_CENTERY (SCREEN_YSIZE / 2)
 
 #if RETRO_PLATFORM == RETRO_PS3
+#include "ps3_compat.h"
 #pragma diag_suppress 1628
 #include <vorbis/vorbisfile.h>
 #include <theora/theora.h>
