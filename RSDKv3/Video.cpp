@@ -132,7 +132,11 @@ void PlayVideoFile(char *filePath)
         videoAR = float(videoWidth) / float(videoHeight);
 
         SetupVideoBuffer(videoWidth, videoHeight);
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2
         vidBaseticks = SDL_GetTicks();
+#else
+        vidBaseticks = 0; // PS3 placeholder or implementation
+#endif
         vidFrameMS   = (videoVidData->fps == 0.0) ? 0 : ((Uint32)(1000.0 / videoVidData->fps));
         videoPlaying = 1; // playing ogv
         trackID      = TRACK_COUNT - 1;
@@ -224,7 +228,11 @@ int ProcessVideo()
 
         // Don't pause or it'll go wild
         if (videoPlaying == 1) {
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2
             const Uint32 now = (SDL_GetTicks() - vidBaseticks);
+#else
+            const Uint32 now = 0; // PS3 placeholder or implementation
+#endif
 
             if (!videoVidData)
                 videoVidData = THEORAPLAY_getVideo(videoDecoder);
@@ -287,7 +295,7 @@ void StopVideoPlayback()
         // `videoPlaying` and `videoDecoder` are read by
         // the audio thread, so lock it to prevent a race
         // condition that results in invalid memory accesses.
-        SDL_LockAudio();
+        LockAudioDevice();
 
         if (videoSkipped && fadeMode >= 0xFF)
             fadeMode = 0;
@@ -304,7 +312,7 @@ void StopVideoPlayback()
         CloseVideoBuffer();
         videoPlaying = 0;
 
-        SDL_UnlockAudio();
+        UnlockAudioDevice();
     }
 }
 
