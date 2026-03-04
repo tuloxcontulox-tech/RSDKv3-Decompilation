@@ -85,6 +85,9 @@ typedef unsigned int uint;
 #define RETRO_PLATFORM (RETRO_VITA)
 #elif defined __linux__
 #define RETRO_PLATFORM (RETRO_LINUX)
+#elif defined(__PS3__) || defined(PS3) || defined(__CELLOS_LV2__)
+#include "ps3_compat.h"
+#define RETRO_PLATFORM (RETRO_PS3)
 #else
 #define RETRO_PLATFORM (RETRO_WIN) // Default
 #endif
@@ -93,6 +96,10 @@ typedef unsigned int uint;
 #define BASE_PATH            "ux0:data/SonicCD/"
 #define DEFAULT_SCREEN_XSIZE 480
 #define DEFAULT_FULLSCREEN   true
+#elif RETRO_PLATFORM == RETRO_PS3
+    #define BASE_PATH            "/dev_hdd0/game/RSDKV3PS3/USRDIR/"
+    #define DEFAULT_SCREEN_XSIZE 424
+    #define DEFAULT_FULLSCREEN   true
 #elif RETRO_PLATFORM == RETRO_UWP
 #define BASE_PATH            ""
 #define DEFAULT_SCREEN_XSIZE 424
@@ -111,8 +118,8 @@ typedef unsigned int uint;
 #define RETRO_USE_SDL2 (1)
 #endif
 
-#if RETRO_PLATFORM == RETRO_WIN || RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_iOS || RETRO_PLATFORM == RETRO_VITA                        \
-    || RETRO_PLATFORM == RETRO_UWP || RETRO_PLATFORM == RETRO_ANDROID || RETRO_PLATFORM == RETRO_LINUX
+#if (RETRO_PLATFORM == RETRO_WIN || RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_iOS || RETRO_PLATFORM == RETRO_VITA                        \
+    || RETRO_PLATFORM == RETRO_UWP || RETRO_PLATFORM == RETRO_ANDROID || RETRO_PLATFORM == RETRO_LINUX) && RETRO_PLATFORM != RETRO_PS3
 #ifdef RETRO_USE_SDL2
 #define RETRO_USING_SDL1 (0)
 #define RETRO_USING_SDL2 (1)
@@ -185,8 +192,10 @@ typedef unsigned int uint;
 #define GL_FRAMEBUFFER         GL_FRAMEBUFFER_EXT
 #define GL_COLOR_ATTACHMENT0   GL_COLOR_ATTACHMENT0_EXT
 #define GL_FRAMEBUFFER_BINDING GL_FRAMEBUFFER_BINDING_EXT
-#else
+#elif RETRO_PLATFORM == RETRO_WIN || RETRO_PLATFORM == RETRO_UWP || RETRO_PLATFORM == RETRO_LINUX
 #include <GL/glew.h>
+#elif RETRO_PLATFORM == RETRO_PS3
+// PSGL is included in ps3_compat.h
 #endif
 #endif
 
@@ -199,6 +208,8 @@ typedef unsigned int uint;
 // use *this* macro to determine what platform the game thinks its running on (since only the first 7 platforms are supported natively by scripts)
 #if RETRO_PLATFORM == RETRO_VITA
 #define RETRO_GAMEPLATFORMID (RETRO_WIN)
+#elif RETRO_PLATFORM == RETRO_PS3
+#define RETRO_GAMEPLATFORMID (RETRO_PS3)
 #elif RETRO_PLATFORM == RETRO_UWP
 #define RETRO_GAMEPLATFORMID (UAP_GetRetroGamePlatformId())
 #elif RETRO_PLATFORM == RETRO_LINUX
@@ -350,7 +361,12 @@ enum RetroBytecodeFormat {
 #define SCREEN_YSIZE   (240)
 #define SCREEN_CENTERY (SCREEN_YSIZE / 2)
 
-#if RETRO_PLATFORM == RETRO_WIN || RETRO_PLATFORM == RETRO_UWP || RETRO_PLATFORM == RETRO_ANDROID || RETRO_PLATFORM == RETRO_LINUX
+#if RETRO_PLATFORM == RETRO_PS3
+#pragma diag_suppress 1628
+#include <vorbis/vorbisfile.h>
+#include <theora/theora.h>
+#include <theoraplay.h>
+#elif RETRO_PLATFORM == RETRO_WIN || RETRO_PLATFORM == RETRO_UWP || RETRO_PLATFORM == RETRO_ANDROID || RETRO_PLATFORM == RETRO_LINUX
 #if RETRO_USING_SDL2
 #include <SDL.h>
 #elif RETRO_USING_SDL1

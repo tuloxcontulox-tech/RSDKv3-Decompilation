@@ -344,7 +344,7 @@ int InitRenderDevice()
         int b               = (c & 0b0000000000011111) << 3;
         gfxPalette16to32[c] = (0xFF << 24) | (b << 16) | (g << 8) | (r << 0);
     }
-    SetScreenDimensions(SCREEN_XSIZE, SCREEN_YSIZE, SCREEN_XSIZE * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
+    SetScreenDimensions(SCREEN_XSIZE, SCREEN_YSIZE, (int)(SCREEN_XSIZE * Engine.windowScale), (int)(SCREEN_YSIZE * Engine.windowScale));
 #endif
 
 #if RETRO_USING_SDL2 && (RETRO_PLATFORM == RETRO_iOS || RETRO_PLATFORM == RETRO_ANDROID || RETRO_PLATFORM == RETRO_WP7)
@@ -356,13 +356,13 @@ int InitRenderDevice()
         vw = mode.h;
         vh = mode.w;
     }
-    SetScreenDimensions(SCREEN_XSIZE, SCREEN_YSIZE, vw, vh);
+    SetScreenDimensions(SCREEN_XSIZE, SCREEN_YSIZE, (int)vw, (int)vh);
 #elif RETRO_USING_SDL2 && RETRO_USING_OPENGL
     int drawableWidth, drawableHeight;
     SDL_GL_GetDrawableSize(Engine.window, &drawableWidth, &drawableHeight);
     SetScreenDimensions(SCREEN_XSIZE, SCREEN_YSIZE, drawableWidth, drawableHeight);
 #elif RETRO_USING_SDL2
-    SetScreenDimensions(SCREEN_XSIZE, SCREEN_YSIZE, SCREEN_XSIZE * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
+    SetScreenDimensions(SCREEN_XSIZE, SCREEN_YSIZE, (int)(SCREEN_XSIZE * Engine.windowScale), (int)(SCREEN_YSIZE * Engine.windowScale));
 #endif
 
     if (renderType == RENDER_SW) {
@@ -1110,7 +1110,7 @@ void SetFullScreen(bool fs)
         viewOffsetY = 0;
 #endif
 
-        SetScreenDimensions(SCREEN_XSIZE, SCREEN_YSIZE, width, height);
+        SetScreenDimensions(SCREEN_XSIZE, SCREEN_YSIZE, (int)width, (int)height);
     }
     else {
         viewOffsetX = 0;
@@ -1130,7 +1130,7 @@ void SetFullScreen(bool fs)
         SDL_GL_GetDrawableSize(Engine.window, &drawableWidth, &drawableHeight);
         SetScreenDimensions(SCREEN_XSIZE, SCREEN_YSIZE, drawableWidth, drawableHeight);
 #else
-        SetScreenDimensions(SCREEN_XSIZE, SCREEN_YSIZE, SCREEN_XSIZE * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
+        SetScreenDimensions(SCREEN_XSIZE, SCREEN_YSIZE, (int)(SCREEN_XSIZE * Engine.windowScale), (int)(SCREEN_YSIZE * Engine.windowScale));
 #endif
 #endif
     }
@@ -1163,34 +1163,34 @@ void ClearScreen(byte index)
         }
     }
     else if (renderType == RENDER_HW) {
-        gfxPolyList[gfxVertexSize].x        = 0.0f;
-        gfxPolyList[gfxVertexSize].y        = 0.0f;
+        gfxPolyList[gfxVertexSize].x        = 0;
+        gfxPolyList[gfxVertexSize].y        = 0;
         gfxPolyList[gfxVertexSize].colour.r = activePalette32[index].r;
         gfxPolyList[gfxVertexSize].colour.g = activePalette32[index].g;
         gfxPolyList[gfxVertexSize].colour.b = activePalette32[index].b;
         gfxPolyList[gfxVertexSize].colour.a = 0xFF;
-        gfxPolyList[gfxVertexSize].u        = 0.0f;
-        gfxPolyList[gfxVertexSize].v        = 0.0f;
+        gfxPolyList[gfxVertexSize].u        = 0;
+        gfxPolyList[gfxVertexSize].v        = 0;
 
         gfxVertexSize++;
         gfxPolyList[gfxVertexSize].x        = SCREEN_XSIZE << 4;
-        gfxPolyList[gfxVertexSize].y        = 0.0f;
+        gfxPolyList[gfxVertexSize].y        = 0;
         gfxPolyList[gfxVertexSize].colour.r = activePalette32[index].r;
         gfxPolyList[gfxVertexSize].colour.g = activePalette32[index].g;
         gfxPolyList[gfxVertexSize].colour.b = activePalette32[index].b;
         gfxPolyList[gfxVertexSize].colour.a = 0xFF;
-        gfxPolyList[gfxVertexSize].u        = 0.0f;
-        gfxPolyList[gfxVertexSize].v        = 0.0f;
+        gfxPolyList[gfxVertexSize].u        = 0;
+        gfxPolyList[gfxVertexSize].v        = 0;
 
         gfxVertexSize++;
-        gfxPolyList[gfxVertexSize].x        = 0.0f;
+        gfxPolyList[gfxVertexSize].x        = 0;
         gfxPolyList[gfxVertexSize].y        = SCREEN_YSIZE << 4;
         gfxPolyList[gfxVertexSize].colour.r = activePalette32[index].r;
         gfxPolyList[gfxVertexSize].colour.g = activePalette32[index].g;
         gfxPolyList[gfxVertexSize].colour.b = activePalette32[index].b;
         gfxPolyList[gfxVertexSize].colour.a = 0xFF;
-        gfxPolyList[gfxVertexSize].u        = 0.0f;
-        gfxPolyList[gfxVertexSize].v        = 0.0f;
+        gfxPolyList[gfxVertexSize].u        = 0;
+        gfxPolyList[gfxVertexSize].v        = 0;
 
         gfxVertexSize++;
         gfxPolyList[gfxVertexSize].x        = SCREEN_XSIZE << 4;
@@ -1199,8 +1199,8 @@ void ClearScreen(byte index)
         gfxPolyList[gfxVertexSize].colour.g = activePalette32[index].g;
         gfxPolyList[gfxVertexSize].colour.b = activePalette32[index].b;
         gfxPolyList[gfxVertexSize].colour.a = 0xFF;
-        gfxPolyList[gfxVertexSize].u        = 0.0f;
-        gfxPolyList[gfxVertexSize].v        = 0.0f;
+        gfxPolyList[gfxVertexSize].u        = 0;
+        gfxPolyList[gfxVertexSize].v        = 0;
         gfxVertexSize++;
 
         gfxIndexSize += 6;
@@ -1303,6 +1303,11 @@ void UpdateHardwareTextures()
 }
 void SetScreenDimensions(int width, int height, int winWidth, int winHeight)
 {
+#if RETRO_USING_OPENGL
+    int bufferW = 0;
+    int bufferH = 0;
+    int val     = 0;
+#endif
     bufferWidth  = width;
     bufferHeight = height;
     bufferWidth = viewWidth = touchWidth = winWidth;
@@ -1333,17 +1338,19 @@ void SetScreenDimensions(int width, int height, int winWidth, int winHeight)
     if (retroBuffer2x)
         glDeleteTextures(1, &retroBuffer2x);
 
+#if RETRO_USING_OPENGL
     // Setup framebuffer texture
-
     int bufferW = 0;
+    int bufferH = 0;
     int val     = 0;
+
+    val = 0;
     do {
         val = 1 << bufferW++;
     } while (val < GFX_LINESIZE);
     bufferW--;
 
-    int bufferH = 0;
-    val         = 0;
+    val = 0;
     do {
         val = 1 << bufferH++;
     } while (val < SCREEN_YSIZE);
@@ -1377,6 +1384,7 @@ void SetScreenDimensions(int width, int height, int winWidth, int winHeight)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, Engine.scalingMode ? GL_LINEAR : GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, Engine.scalingMode ? GL_LINEAR : GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, SCREEN_XSIZE * 2, SCREEN_YSIZE * 2, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+#endif
 #endif
 
     int widthFix = 1;
