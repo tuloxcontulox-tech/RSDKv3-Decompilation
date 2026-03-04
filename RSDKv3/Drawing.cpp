@@ -1303,11 +1303,6 @@ void UpdateHardwareTextures()
 }
 void SetScreenDimensions(int width, int height, int winWidth, int winHeight)
 {
-#if RETRO_USING_OPENGL
-    int bufferW = 0;
-    int bufferH = 0;
-    int val     = 0;
-#endif
     bufferWidth  = width;
     bufferHeight = height;
     bufferWidth = viewWidth = touchWidth = winWidth;
@@ -1344,13 +1339,11 @@ void SetScreenDimensions(int width, int height, int winWidth, int winHeight)
     int bufferH = 0;
     int val     = 0;
 
-    val = 0;
     do {
         val = 1 << bufferW++;
     } while (val < GFX_LINESIZE);
     bufferW--;
 
-    val = 0;
     do {
         val = 1 << bufferH++;
     } while (val < SCREEN_YSIZE);

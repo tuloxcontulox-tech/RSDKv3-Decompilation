@@ -436,65 +436,185 @@ public:
             gamePlatform = "Standard";
         else
             gamePlatform = "Mobile";
+
+#if !RETRO_USE_ORIGINAL_CODE
+        usingDataFile_Config = false;
+        usingDataFileStore   = false;
+#endif
+        usingDataFile = false;
+        usingBytecode = false;
+#if !RETRO_USE_ORIGINAL_CODE
+        usingOrigins = false;
+#endif
+        bytecodeMode = BYTECODE_MOBILE;
+        forceFolder  = false;
+
+        initialised = false;
+        running     = false;
+
+        gameMode     = ENGINE_MAINGAME;
+        language     = RETRO_EN;
+        message      = 0;
+        highResMode  = false;
+        useFBTexture = false;
+
+        trialMode    = false;
+        onlineActive = true;
+#if RETRO_USE_HAPTICS
+        hapticsEnabled = true;
+#endif
+
+        frameSkipSetting = 0;
+        frameSkipTimer   = 0;
+
+        useSteamDir = false;
+
+#if !RETRO_USE_ORIGINAL_CODE
+        // Ported from RSDKv5
+        startList_Game  = -1;
+        startStage_Game = -1;
+
+        consoleEnabled   = false;
+        devMenu          = false;
+        startList        = -1;
+        startStage       = -1;
+        gameSpeed        = 1;
+        fastForwardSpeed = 8;
+        masterPaused     = false;
+        frameStep        = false;
+        dimTimer         = 0;
+        dimLimit         = 0;
+        dimPercent       = 1.0;
+        dimMax           = 1.0;
+
+        showPaletteOverlay = false;
+        useHQModes         = true;
+#endif
+
+        hasFocus   = true;
+        focusState = 0;
+
+        callbackMessage = 0;
+        prevMessage     = 0;
+        waitValue       = 0;
+
+#ifdef DECOMP_VERSION
+        gameVersion = DECOMP_VERSION;
+#else
+        gameVersion = "1.3.3";
+#endif
+        gameRenderTypes[0] = "SW_Rendering";
+        gameRenderTypes[1] = "HW_Rendering";
+        gameRenderType     = gameRenderTypes[RENDER_SW];
+
+#if RETRO_USE_HAPTICS
+        gameHapticSetting = "Use_Haptics";
+#else
+        gameHapticSetting = "No_Haptics";
+#endif
+
+#if RETRO_USE_MOD_LOADER
+        modMenuCalled = false;
+#endif
+
+        gameTypeID  = 0;
+        releaseType = "Use_Standalone";
+
+        frameBuffer   = NULL;
+        frameBuffer2x = NULL;
+        texBuffer     = NULL;
+        texBuffer2x   = NULL;
+
+        isFullScreen = false;
+
+        startFullScreen = false; // if should start as fullscreen
+        borderless      = false;
+        vsync           = false;
+        scalingMode     = 0;
+        windowScale     = 2;
+        refreshRate     = 60; // user-picked screen update rate
+        screenRefreshRate = 60; // hardware screen update rate
+        targetRefreshRate = 60; // game logic update rate
+
+        frameCount       = 0; // frames since scene load
+        renderFrameIndex = 0;
+        skipFrameIndex   = 0;
+
+#if RETRO_USING_SDL2
+        window = NULL;
+#if !RETRO_USING_OPENGL
+        renderer      = NULL;
+        screenBuffer   = NULL;
+        screenBuffer2x = NULL;
+        videoBuffer    = NULL;
+#endif
+#endif
+
+#if RETRO_USING_SDL1
+        windowSurface = NULL;
+        screenBuffer   = NULL;
+        screenBuffer2x = NULL;
+        videoBuffer    = NULL;
+#endif
     }
 
 #if !RETRO_USE_ORIGINAL_CODE
-    bool usingDataFile_Config = false;
-    bool usingDataFileStore   = false;
+    bool usingDataFile_Config;
+    bool usingDataFileStore;
 #endif
-    bool usingDataFile = false;
-    bool usingBytecode = false;
+    bool usingDataFile;
+    bool usingBytecode;
 #if !RETRO_USE_ORIGINAL_CODE
-    bool usingOrigins  = false;
+    bool usingOrigins;
 #endif
-    byte bytecodeMode  = BYTECODE_MOBILE;
-    bool forceFolder   = false;
+    byte bytecodeMode;
+    bool forceFolder;
 
     char dataFile[0x80];
 
-    bool initialised = false;
-    bool running     = false;
+    bool initialised;
+    bool running;
 
-    int gameMode      = ENGINE_MAINGAME;
-    int language      = RETRO_EN;
-    int message       = 0;
-    bool highResMode  = false;
-    bool useFBTexture = false;
+    int gameMode;
+    int language;
+    int message;
+    bool highResMode;
+    bool useFBTexture;
 
-    bool trialMode      = false;
-    bool onlineActive   = true;
+    bool trialMode;
+    bool onlineActive;
 #if RETRO_USE_HAPTICS
-    bool hapticsEnabled = true;
+    bool hapticsEnabled;
 #endif
 
-    int frameSkipSetting = 0;
-    int frameSkipTimer   = 0;
+    int frameSkipSetting;
+    int frameSkipTimer;
 
-    bool useSteamDir = false;
+    bool useSteamDir;
 
 #if !RETRO_USE_ORIGINAL_CODE
     // Ported from RSDKv5
-    int startList_Game  = -1;
-    int startStage_Game = -1;
+    int startList_Game;
+    int startStage_Game;
 
-    bool consoleEnabled  = false;
-    bool devMenu         = false;
-    int startList        = -1;
-    int startStage       = -1;
-    int gameSpeed        = 1;
-    int fastForwardSpeed = 8;
-    bool masterPaused    = false;
-    bool frameStep       = false;
-    int dimTimer         = 0;
-    int dimLimit         = 0;
-    float dimPercent     = 1.0;
-    float dimMax         = 1.0;
+    bool consoleEnabled;
+    bool devMenu;
+    int startList;
+    int startStage;
+    int gameSpeed;
+    int fastForwardSpeed;
+    bool masterPaused;
+    bool frameStep;
+    int dimTimer;
+    int dimLimit;
+    float dimPercent;
+    float dimMax;
 
     char startSceneFolder[0x10];
     char startSceneID[0x10];
 
-    bool showPaletteOverlay = false;
-    bool useHQModes         = true;
+    bool showPaletteOverlay;
+    bool useHQModes;
 #endif
 
     void Init();
@@ -511,72 +631,63 @@ public:
     void LoadXMLStages(TextMenu *menu, int listNo);
 #endif
 
-    bool hasFocus   = true;
-    byte focusState = 0;
+    bool hasFocus;
+    byte focusState;
 
-    int callbackMessage = 0;
-    int prevMessage     = 0;
-    int waitValue       = 0;
+    int callbackMessage;
+    int prevMessage;
+    int waitValue;
     void Callback(int callbackID);
 
     char gameWindowText[0x40];
     char gameDescriptionText[0x100];
-#ifdef DECOMP_VERSION
-    const char *gameVersion = DECOMP_VERSION;
-#else
-    const char *gameVersion = "1.3.3";
-#endif
+    const char *gameVersion;
     const char *gamePlatform;
 
-    const char *gameRenderTypes[2] = { "SW_Rendering", "HW_Rendering" };
+    const char *gameRenderTypes[2];
 
-    const char *gameRenderType = gameRenderTypes[RENDER_SW];
+    const char *gameRenderType;
 
-    // No_Haptics is default for pc but people with controllers exist
-#if RETRO_USE_HAPTICS
-    const char *gameHapticSetting = "Use_Haptics";
-#else
-    const char *gameHapticSetting = "No_Haptics";
-#endif
+    const char *gameHapticSetting;
 
 #if RETRO_USE_MOD_LOADER
-    bool modMenuCalled = false;
+    bool modMenuCalled;
 #endif
 
-    int gameTypeID          = 0;
-    const char *releaseType = "Use_Standalone";
+    int gameTypeID;
+    const char *releaseType;
 
-    ushort *frameBuffer   = nullptr;
-    ushort *frameBuffer2x = nullptr;
+    ushort *frameBuffer;
+    ushort *frameBuffer2x;
 
-    uint *texBuffer   = nullptr;
-    uint *texBuffer2x = nullptr;
+    uint *texBuffer;
+    uint *texBuffer2x;
 
-    bool isFullScreen = false;
+    bool isFullScreen;
 
-    bool startFullScreen  = false; // if should start as fullscreen
-    bool borderless       = false;
-    bool vsync            = false;
-    int scalingMode       = 0;
-    int windowScale       = 2;
-    int refreshRate       = 60; // user-picked screen update rate
-    int screenRefreshRate = 60; // hardware screen update rate
-    int targetRefreshRate = 60; // game logic update rate
+    bool startFullScreen; // if should start as fullscreen
+    bool borderless;
+    bool vsync;
+    int scalingMode;
+    int windowScale;
+    int refreshRate; // user-picked screen update rate
+    int screenRefreshRate; // hardware screen update rate
+    int targetRefreshRate; // game logic update rate
 
-    uint frameCount      = 0; // frames since scene load
-    int renderFrameIndex = 0;
-    int skipFrameIndex   = 0;
+    uint frameCount; // frames since scene load
+    int renderFrameIndex;
+    int skipFrameIndex;
 
     int windowXSize; // width of window/screen in the previous frame
     int windowYSize; // height of window/screen in the previous frame
 
 #if RETRO_USING_SDL2
-    SDL_Window *window = nullptr;
+    SDL_Window *window;
 #if !RETRO_USING_OPENGL
-    SDL_Renderer *renderer      = nullptr;
-    SDL_Texture *screenBuffer   = nullptr;
-    SDL_Texture *screenBuffer2x = nullptr;
-    SDL_Texture *videoBuffer    = nullptr;
+    SDL_Renderer *renderer;
+    SDL_Texture *screenBuffer;
+    SDL_Texture *screenBuffer2x;
+    SDL_Texture *videoBuffer;
 #endif
 
     SDL_Event sdlEvents;
@@ -588,11 +699,11 @@ public:
 #endif
 
 #if RETRO_USING_SDL1
-    SDL_Surface *windowSurface = nullptr;
+    SDL_Surface *windowSurface;
 
-    SDL_Surface *screenBuffer   = nullptr;
-    SDL_Surface *screenBuffer2x = nullptr;
-    SDL_Surface *videoBuffer    = nullptr;
+    SDL_Surface *screenBuffer;
+    SDL_Surface *screenBuffer2x;
+    SDL_Surface *videoBuffer;
 
     SDL_Event sdlEvents;
 #endif
