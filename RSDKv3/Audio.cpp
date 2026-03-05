@@ -1,7 +1,5 @@
 #include "RetroEngine.hpp"
 #include <cmath>
-#include <iostream>
-#include <thread>
 
 int globalSFXCount = 0;
 int stageSFXCount  = 0;
