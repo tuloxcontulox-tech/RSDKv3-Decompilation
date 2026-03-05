@@ -167,7 +167,7 @@ std::vector<SDL_GameController *> controllers;
 #if RETRO_USING_SDL1
 byte keyState[SDLK_LAST];
 
-SDL_Joystick *controller = nullptr;
+SDL_Joystick *controller = NULL;
 #endif
 
 #define normalize(val, minVal, maxVal) ((float)(val) - (float)(minVal)) / ((float)(maxVal) - (float)(minVal))
@@ -451,7 +451,7 @@ void ProcessInput()
             // Close the joystick
             SDL_JoystickClose(controller);
         }
-        controller = nullptr;
+        controller = NULL;
         inputType  = 0;
     }
 

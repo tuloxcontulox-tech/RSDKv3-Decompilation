@@ -134,10 +134,8 @@ void PlayVideoFile(char *filePath)
         SetupVideoBuffer(videoWidth, videoHeight);
 #if RETRO_USING_SDL1 || RETRO_USING_SDL2
         vidBaseticks = SDL_GetTicks();
-#else
-        vidBaseticks = 0; // PS3 placeholder or implementation
 #endif
-        vidFrameMS   = (videoVidData->fps == 0.0) ? 0 : ((Uint32)(1000.0 / videoVidData->fps));
+        vidFrameMS   = (videoVidData->fps == 0.0) ? 0 : ((uint)(1000.0 / videoVidData->fps));
         videoPlaying = 1; // playing ogv
         trackID      = TRACK_COUNT - 1;
 
@@ -229,9 +227,9 @@ int ProcessVideo()
         // Don't pause or it'll go wild
         if (videoPlaying == 1) {
 #if RETRO_USING_SDL1 || RETRO_USING_SDL2
-            const Uint32 now = (SDL_GetTicks() - vidBaseticks);
+            const uint now = (SDL_GetTicks() - vidBaseticks);
 #else
-            const Uint32 now = 0; // PS3 placeholder or implementation
+            const uint now = 0;
 #endif
 
             if (!videoVidData)
@@ -268,10 +266,10 @@ int ProcessVideo()
                 glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, videoVidData->width, videoVidData->height, GL_RGBA, GL_UNSIGNED_BYTE, videoVidData->pixels);
                 glBindTexture(GL_TEXTURE_2D, 0);
 #elif RETRO_USING_SDL2
-                int half_w     = videoVidData->width / 2;
-                const Uint8 *y = (const Uint8 *)videoVidData->pixels;
-                const Uint8 *u = y + (videoVidData->width * videoVidData->height);
-                const Uint8 *v = u + (half_w * (videoVidData->height / 2));
+                int half_w    = videoVidData->width / 2;
+                const byte *y = (const byte *)videoVidData->pixels;
+                const byte *u = y + (videoVidData->width * videoVidData->height);
+                const byte *v = u + (half_w * (videoVidData->height / 2));
 
                 SDL_UpdateYUVTexture(Engine.videoBuffer, NULL, y, videoVidData->width, u, half_w, v, half_w);
 #elif RETRO_USING_SDL1
@@ -357,10 +355,10 @@ void CloseVideoBuffer()
         }
 #elif RETRO_USING_SDL1
         SDL_FreeSurface(Engine.videoBuffer);
-        Engine.videoBuffer = nullptr;
+        Engine.videoBuffer = NULL;
 #elif RETRO_USING_SDL2
         SDL_DestroyTexture(Engine.videoBuffer);
-        Engine.videoBuffer = nullptr;
+        Engine.videoBuffer = NULL;
 #endif
     }
 }

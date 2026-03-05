@@ -55,7 +55,9 @@ typedef unsigned int uint;
 #define RETRO_MOBILE   (1)
 
 // use this macro (RETRO_PLATFORM) to define platform specific code blocks and etc to run the engine
-#if defined _WIN32
+#if defined(__PS3__) || defined(PS3) || defined(__CELLOS_LV2__)
+#define RETRO_PLATFORM (RETRO_PS3)
+#elif defined _WIN32
 #if defined WINAPI_FAMILY
 #if WINAPI_FAMILY != WINAPI_FAMILY_APP
 #define RETRO_PLATFORM (RETRO_WIN)
@@ -85,8 +87,6 @@ typedef unsigned int uint;
 #define RETRO_PLATFORM (RETRO_VITA)
 #elif defined __linux__
 #define RETRO_PLATFORM (RETRO_LINUX)
-#elif defined(__PS3__) || defined(PS3) || defined(__CELLOS_LV2__)
-#define RETRO_PLATFORM (RETRO_PS3)
 #else
 #define RETRO_PLATFORM (RETRO_WIN) // Default
 #endif
@@ -201,18 +201,26 @@ typedef unsigned int uint;
 #define glDeleteFramebuffers   glDeleteFramebuffersOES
 #define glOrtho                glOrthof
 
+#ifndef GL_FRAMEBUFFER
 #define GL_FRAMEBUFFER         GL_FRAMEBUFFER_OES
-#define GL_COLOR_ATTACHMENT0   GL_COLOR_ATTACHMENT0_OES
-#define GL_FRAMEBUFFER_BINDING GL_FRAMEBUFFER_BINDING_OES
-
+#endif
 #ifndef GL_COLOR_ATTACHMENT0
-#define GL_COLOR_ATTACHMENT0 GL_COLOR_ATTACHMENT0_OES
+#define GL_COLOR_ATTACHMENT0   GL_COLOR_ATTACHMENT0_OES
+#endif
+#ifndef GL_FRAMEBUFFER_BINDING
+#define GL_FRAMEBUFFER_BINDING GL_FRAMEBUFFER_BINDING_OES
+#endif
+
 #endif
 
 #ifndef GL_COLOR_ATTACHMENT0_OES
+#ifdef GL_COLOR_ATTACHMENT0
+#define GL_COLOR_ATTACHMENT0_OES GL_COLOR_ATTACHMENT0
+#else
 #define GL_COLOR_ATTACHMENT0_OES 0x8CE0
 #endif
 #endif
+
 #endif
 
 #define RETRO_USE_HAPTICS (1)

@@ -5,8 +5,10 @@
 
 #include <vorbis/vorbisfile.h>
 
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2
 #if RETRO_PLATFORM != RETRO_VITA && RETRO_PLATFORM != RETRO_OSX
 #include "SDL.h"
+#endif
 #endif
 
 #if RETRO_USING_SDL1 || RETRO_USING_SDL2
@@ -45,7 +47,7 @@ struct StreamInfo {
 #if RETRO_USING_SDL2
     SDL_AudioStream *stream;
 #endif
-    Sint16 buffer[MIX_BUFFER_SAMPLES];
+    short buffer[MIX_BUFFER_SAMPLES];
     bool trackLoop;
     uint loopPoint;
     bool loaded;
@@ -53,14 +55,14 @@ struct StreamInfo {
 
 struct SFXInfo {
     char name[0x40];
-    Sint16 *buffer;
+    short *buffer;
     size_t length;
     bool loaded;
 };
 
 struct ChannelInfo {
     size_t sampleLength;
-    Sint16 *samplePtr;
+    short *samplePtr;
     int sfxID;
     byte loopSFX;
     sbyte pan;
@@ -111,9 +113,9 @@ int InitAudioPlayback();
 void LoadGlobalSfx();
 
 #if RETRO_USING_SDL1 || RETRO_USING_SDL2
-void ProcessMusicStream(void *data, Sint16 *stream, int len);
-void ProcessAudioPlayback(void *data, Uint8 *stream, int len);
-void ProcessAudioMixing(Sint32 *dst, const Sint16 *src, int len, int volume, sbyte pan);
+void ProcessMusicStream(int *stream, size_t bytes_wanted);
+void ProcessAudioPlayback(void *data, byte *stream, int len);
+void ProcessAudioMixing(int *dst, const short *src, int len, int volume, sbyte pan);
 
 inline void FreeMusInfo()
 {
@@ -125,7 +127,7 @@ inline void FreeMusInfo()
 #endif
     ov_clear(&streamInfo[currentStreamIndex].vorbisFile);
 #if RETRO_USING_SDL2
-    streamInfo[currentStreamIndex].stream = nullptr;
+    streamInfo[currentStreamIndex].stream = NULL;
 #endif
     if (streamFile[currentStreamIndex].buffer)
         free(streamFile[currentStreamIndex].buffer);

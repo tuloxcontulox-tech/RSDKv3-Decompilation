@@ -1166,7 +1166,7 @@ void ResetBackgroundSettings()
 
 void SetLayerDeformation(int selectedDef, int waveLength, int waveWidth, int waveType, int YPos, int waveSize)
 {
-    int *deformPtr = nullptr;
+    int *deformPtr = NULL;
     switch (selectedDef) {
         case DEFORM_FG: deformPtr = bgDeformationData0; break;
         case DEFORM_FG_WATER: deformPtr = bgDeformationData1; break;

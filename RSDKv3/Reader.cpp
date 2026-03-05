@@ -21,7 +21,7 @@ char encryptionStringB[] = { "3tRaUxLmEaSn" };
 byte isModdedFile = false;
 #endif
 
-FileIO *cFileHandle = nullptr;
+FileIO *cFileHandle = NULL;
 
 bool CheckRSDKFile(const char *filePath)
 {
