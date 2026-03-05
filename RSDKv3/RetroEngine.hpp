@@ -200,6 +200,7 @@ typedef unsigned int uint;
 #define glFramebufferTexture2D glFramebufferTexture2DOES
 #define glDeleteFramebuffers   glDeleteFramebuffersOES
 #define glOrtho                glOrthof
+#endif
 
 #ifndef GL_FRAMEBUFFER
 #define GL_FRAMEBUFFER         GL_FRAMEBUFFER_OES
@@ -209,16 +210,6 @@ typedef unsigned int uint;
 #endif
 #ifndef GL_FRAMEBUFFER_BINDING
 #define GL_FRAMEBUFFER_BINDING GL_FRAMEBUFFER_BINDING_OES
-#endif
-
-#endif
-
-#ifndef GL_COLOR_ATTACHMENT0_OES
-#ifdef GL_COLOR_ATTACHMENT0
-#define GL_COLOR_ATTACHMENT0_OES GL_COLOR_ATTACHMENT0
-#else
-#define GL_COLOR_ATTACHMENT0_OES 0x8CE0
-#endif
 #endif
 
 #endif
