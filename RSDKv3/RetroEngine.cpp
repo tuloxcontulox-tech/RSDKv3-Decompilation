@@ -369,18 +369,22 @@ void RetroEngine::Init()
 
 void RetroEngine::Run()
 {
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2
     unsigned long long targetFreq = SDL_GetPerformanceFrequency() / Engine.refreshRate;
     unsigned long long curTicks   = 0;
     unsigned long long prevTicks  = 0;
+#endif
 
     while (running) {
 #if !RETRO_USE_ORIGINAL_CODE
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2
         if (!vsync) {
             curTicks = SDL_GetPerformanceCounter();
             if (curTicks < prevTicks + targetFreq)
                 continue;
             prevTicks = curTicks;
         }
+#endif
 #endif
         running = ProcessEvents();
 
