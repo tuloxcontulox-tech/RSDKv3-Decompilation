@@ -136,9 +136,9 @@ inline void FreeMusInfo()
     UnlockAudioDevice();
 }
 #else
-void ProcessMusicStream() {}
-void ProcessAudioPlayback() {}
-void ProcessAudioMixing() {}
+inline void ProcessMusicStream(int *stream, size_t bytes_wanted) {}
+inline void ProcessAudioPlayback(void *data, byte *stream, int len) {}
+inline void ProcessAudioMixing(int *dst, const short *src, int len, int volume, sbyte pan) {}
 
 inline void FreeMusInfo() { ov_clear(&streamInfo[currentStreamIndex].vorbisFile); }
 #endif

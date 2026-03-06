@@ -48,7 +48,6 @@ void parseArguments(int argc, char *argv[])
 }
 #endif
 
-#if RETRO_PLATFORM != RETRO_PS3
 int main(int argc, char *argv[])
 {
 #if !RETRO_USE_ORIGINAL_CODE
@@ -68,4 +67,3 @@ int main(int argc, char *argv[])
 
     return 0;
 }
-#endif

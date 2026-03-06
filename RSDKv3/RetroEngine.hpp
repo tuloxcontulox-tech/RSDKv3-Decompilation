@@ -1,6 +1,12 @@
 #ifndef RETROENGINE_H
 #define RETROENGINE_H
 
+#if defined(__PS3__) || defined(PS3) || defined(__CELLOS_LV2__)
+#ifndef _HAS_EXCEPTIONS
+#define _HAS_EXCEPTIONS 0
+#endif
+#endif
+
 // Disables POSIX use c++ name blah blah stuff
 #pragma warning(disable : 4996)
 
