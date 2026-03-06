@@ -1,11 +1,11 @@
-#ifndef RETROENGINE_H
-#define RETROENGINE_H
-
 #if defined(__PS3__) || defined(PS3) || defined(__CELLOS_LV2__)
 #ifndef _HAS_EXCEPTIONS
 #define _HAS_EXCEPTIONS 0
 #endif
 #endif
+
+#ifndef RETROENGINE_H
+#define RETROENGINE_H
 
 // Disables POSIX use c++ name blah blah stuff
 #pragma warning(disable : 4996)
@@ -52,6 +52,9 @@ typedef unsigned int uint;
 #endif
 #ifndef GL_FRAMEBUFFER_BINDING_OES
 #define GL_FRAMEBUFFER_BINDING_OES 0x8CA6
+#endif
+#ifndef GL_RENDERBUFFER_OES
+#define GL_RENDERBUFFER_OES 0x8D41
 #endif
 
 // Platforms (RSDKv3 only defines these 7, but feel free to add your own custom platform define for easier platform code changes)
@@ -219,7 +222,13 @@ typedef unsigned int uint;
 #define glBindFramebuffer      glBindFramebufferOES
 #define glFramebufferTexture2D glFramebufferTexture2DOES
 #define glDeleteFramebuffers   glDeleteFramebuffersOES
+#define glGenRenderbuffers     glGenRenderbuffersOES
+#define glBindRenderbuffer     glBindRenderbufferOES
+#define glRenderbufferStorage  glRenderbufferStorageOES
 #define glOrtho                glOrthof
+#define GL_FRAMEBUFFER         GL_FRAMEBUFFER_OES
+#define GL_RENDERBUFFER        GL_RENDERBUFFER_OES
+#define GL_COLOR_ATTACHMENT0   GL_COLOR_ATTACHMENT0_OES
 #endif
 
 #ifndef GL_FRAMEBUFFER

@@ -484,6 +484,7 @@ void ProcessAudioPlayback(void *userdata, byte *stream, int len)
     }
 }
 
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2
 void ProcessAudioMixing(int *dst, const short *src, int len, int volume, sbyte pan)
 {
     if (volume == 0)
@@ -523,6 +524,7 @@ void ProcessAudioMixing(int *dst, const short *src, int len, int volume, sbyte p
         i++;
     }
 }
+#endif
 #endif
 
 #if RETRO_USE_MOD_LOADER

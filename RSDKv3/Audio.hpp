@@ -17,8 +17,8 @@
 #define UnlockAudioDevice() SDL_UnlockAudio()
 
 #else
-#define LockAudioDevice()   ;
-#define UnlockAudioDevice() ;
+#define LockAudioDevice()
+#define UnlockAudioDevice()
 #endif
 
 #define TRACK_COUNT   (0x10)

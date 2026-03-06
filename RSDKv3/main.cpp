@@ -51,7 +51,9 @@ void parseArguments(int argc, char *argv[])
 int main(int argc, char *argv[])
 {
 #if !RETRO_USE_ORIGINAL_CODE
+#if RETRO_PLATFORM != RETRO_PS3
     parseArguments(argc, argv);
+#endif
 #endif
 
     Engine.Init();
