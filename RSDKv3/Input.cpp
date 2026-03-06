@@ -331,15 +331,18 @@ bool getControllerButton(byte buttonID)
 
 void ControllerInit(byte controllerID)
 {
+#if RETRO_USING_SDL2
     SDL_GameController *controller = SDL_GameControllerOpen(controllerID);
     if (controller) {
         controllers.push_back(controller);
         inputType = 1;
     }
+#endif
 }
 
 void ControllerClose(byte controllerID)
 {
+#if RETRO_USING_SDL2
     SDL_GameController *controller = SDL_GameControllerFromInstanceID(controllerID);
     if (controller) {
         SDL_GameControllerClose(controller);
@@ -349,6 +352,7 @@ void ControllerClose(byte controllerID)
     if (controllers.empty()) {
         inputType = 0;
     }
+#endif
 }
 
 void ProcessInput()
