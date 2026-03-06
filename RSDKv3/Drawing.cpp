@@ -1,5 +1,6 @@
 #include "RetroEngine.hpp"
 
+
 // Workaround for a "bug" in Linux with AMD cards where the presented buffer
 // isn't cleared and displays corrupted memory in the letter/pillar boxes.
 //

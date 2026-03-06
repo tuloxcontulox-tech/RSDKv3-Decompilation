@@ -37,6 +37,17 @@ typedef signed char sbyte;
 typedef unsigned short ushort;
 typedef unsigned int uint;
 
+// Standard OES values (defined early for global visibility)
+#ifndef GL_FRAMEBUFFER_OES
+#define GL_FRAMEBUFFER_OES 0x8D40
+#endif
+#ifndef GL_COLOR_ATTACHMENT0_OES
+#define GL_COLOR_ATTACHMENT0_OES 0x8CE0
+#endif
+#ifndef GL_FRAMEBUFFER_BINDING_OES
+#define GL_FRAMEBUFFER_BINDING_OES 0x8CA6
+#endif
+
 // Platforms (RSDKv3 only defines these 7, but feel free to add your own custom platform define for easier platform code changes)
 #define RETRO_WIN      (0)
 #define RETRO_OSX      (1)
@@ -140,10 +151,12 @@ typedef unsigned int uint;
 #endif
 
 #ifndef RETRO_USING_OPENGL
-#define RETRO_USING_OPENGL (1)
+#define RETRO_USING_OPENGL 1
 #endif
 
 #if RETRO_USING_OPENGL
+
+
 #if RETRO_PLATFORM == RETRO_ANDROID
 #define GL_GLEXT_PROTOTYPES
 
@@ -153,7 +166,8 @@ typedef unsigned int uint;
 #undef glGenFramebuffers
 #undef glBindFramebuffers
 #undef glFramebufferTexture2D
-
+#undef glDeleteFramebuffers
+#undef glOrtho
 #undef GL_FRAMEBUFFER
 #undef GL_COLOR_ATTACHMENT0
 #undef GL_FRAMEBUFFER_BINDING
@@ -163,10 +177,10 @@ typedef unsigned int uint;
 #define glFramebufferTexture2D glFramebufferTexture2DOES
 #define glDeleteFramebuffers   glDeleteFramebuffersOES
 #define glOrtho                glOrthof
-
 #define GL_FRAMEBUFFER         GL_FRAMEBUFFER_OES
 #define GL_COLOR_ATTACHMENT0   GL_COLOR_ATTACHMENT0_OES
 #define GL_FRAMEBUFFER_BINDING GL_FRAMEBUFFER_BINDING_OES
+
 #elif RETRO_PLATFORM == RETRO_OSX
 #define GL_GLEXT_PROTOTYPES
 #define GL_SILENCE_DEPRECATION
@@ -178,7 +192,6 @@ typedef unsigned int uint;
 #undef glBindFramebuffer
 #undef glFramebufferTexture2D
 #undef glDeleteFramebuffers
-
 #undef GL_FRAMEBUFFER
 #undef GL_COLOR_ATTACHMENT0
 #undef GL_FRAMEBUFFER_BINDING
@@ -187,12 +200,13 @@ typedef unsigned int uint;
 #define glBindFramebuffer      glBindFramebufferEXT
 #define glFramebufferTexture2D glFramebufferTexture2DEXT
 #define glDeleteFramebuffers   glDeleteFramebuffersEXT
-
 #define GL_FRAMEBUFFER         GL_FRAMEBUFFER_EXT
 #define GL_COLOR_ATTACHMENT0   GL_COLOR_ATTACHMENT0_EXT
 #define GL_FRAMEBUFFER_BINDING GL_FRAMEBUFFER_BINDING_EXT
+
 #elif RETRO_PLATFORM == RETRO_WIN || RETRO_PLATFORM == RETRO_UWP || RETRO_PLATFORM == RETRO_LINUX
 #include <GL/glew.h>
+
 #elif RETRO_PLATFORM == RETRO_PS3
 // PSGL is included in ps3_compat.h
 #define glGenFramebuffers      glGenFramebuffersOES
