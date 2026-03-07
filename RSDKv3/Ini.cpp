@@ -13,9 +13,31 @@ int strncmp(char const *a, char const *b)
     }
 }
 
+IniParser::ConfigItem::ConfigItem()
+{
+    section[0] = 0;
+    key[0]     = 0;
+    value[0]   = 0;
+    hasSection = false;
+    type       = INI_ITEM_STRING;
+}
+
+IniParser::IniParser()
+{
+#if RETRO_PLATFORM == RETRO_PS3
+    itemCount = 0;
+#else
+    items.clear();
+#endif
+}
+
 IniParser::IniParser(const char *filename, bool addPath)
 {
+#if RETRO_PLATFORM == RETRO_PS3
+    itemCount = 0;
+#else
     items.clear();
+#endif
     char buf[0x100];
     char section[0x40];
     bool hasSection = false;
@@ -78,7 +100,12 @@ IniParser::IniParser(const char *filename, bool addPath)
             sprintf(item.key, "%s", key);
             sprintf(item.value, "%s", value);
             item.hasSection = hasSection;
+#if RETRO_PLATFORM == RETRO_PS3
+            if (itemCount < 512)
+                items[itemCount++] = item;
+#else
             items.push_back(item);
+#endif
         }
         if (flag)
             break;
@@ -155,7 +182,12 @@ int IniParser::GetBool(const char *section, const char *key, bool *dest)
 int IniParser::SetString(const char *section, const char *key, char *value)
 {
     int where = -1;
-    for (int x = 0; x < items.size(); x++) {
+    int size  = (int)items.size();
+#if RETRO_PLATFORM == RETRO_PS3
+    size = itemCount;
+#endif
+
+    for (int x = 0; x < size; x++) {
         if (strcmp(section, items[x].section) == 0) {
             if (strcmp(key, items[x].key) == 0) {
                 where = x;
@@ -164,8 +196,15 @@ int IniParser::SetString(const char *section, const char *key, char *value)
         }
     }
     if (where < 0) {
-        where = (int)items.size();
+        where = size;
+#if RETRO_PLATFORM == RETRO_PS3
+        if (itemCount < 512)
+            itemCount++;
+        else
+            return 0;
+#else
         items.push_back(ConfigItem());
+#endif
     }
 
     strcpy(items[where].section, section);
@@ -177,7 +216,12 @@ int IniParser::SetString(const char *section, const char *key, char *value)
 int IniParser::SetInteger(const char *section, const char *key, int value)
 {
     int where = -1;
-    for (int x = 0; x < items.size(); x++) {
+    int size  = (int)items.size();
+#if RETRO_PLATFORM == RETRO_PS3
+    size = itemCount;
+#endif
+
+    for (int x = 0; x < size; x++) {
         if (strcmp(section, items[x].section) == 0) {
             if (strcmp(key, items[x].key) == 0) {
                 where = x;
@@ -186,8 +230,15 @@ int IniParser::SetInteger(const char *section, const char *key, int value)
         }
     }
     if (where < 0) {
-        where = (int)items.size();
+        where = size;
+#if RETRO_PLATFORM == RETRO_PS3
+        if (itemCount < 512)
+            itemCount++;
+        else
+            return 0;
+#else
         items.push_back(ConfigItem());
+#endif
     }
 
     strcpy(items[where].section, section);
@@ -199,7 +250,12 @@ int IniParser::SetInteger(const char *section, const char *key, int value)
 int IniParser::SetFloat(const char *section, const char *key, float value)
 {
     int where = -1;
-    for (int x = 0; x < items.size(); x++) {
+    int size  = (int)items.size();
+#if RETRO_PLATFORM == RETRO_PS3
+    size = itemCount;
+#endif
+
+    for (int x = 0; x < size; x++) {
         if (strcmp(section, items[x].section) == 0) {
             if (strcmp(key, items[x].key) == 0) {
                 where = x;
@@ -208,8 +264,15 @@ int IniParser::SetFloat(const char *section, const char *key, float value)
         }
     }
     if (where < 0) {
-        where = (int)items.size();
+        where = size;
+#if RETRO_PLATFORM == RETRO_PS3
+        if (itemCount < 512)
+            itemCount++;
+        else
+            return 0;
+#else
         items.push_back(ConfigItem());
+#endif
     }
 
     strcpy(items[where].section, section);
@@ -221,7 +284,12 @@ int IniParser::SetFloat(const char *section, const char *key, float value)
 int IniParser::SetBool(const char *section, const char *key, bool value)
 {
     int where = -1;
-    for (int x = 0; x < items.size(); x++) {
+    int size  = (int)items.size();
+#if RETRO_PLATFORM == RETRO_PS3
+    size = itemCount;
+#endif
+
+    for (int x = 0; x < size; x++) {
         if (strcmp(section, items[x].section) == 0) {
             if (strcmp(key, items[x].key) == 0) {
                 where = x;
@@ -230,8 +298,15 @@ int IniParser::SetBool(const char *section, const char *key, bool value)
         }
     }
     if (where < 0) {
-        where = (int)items.size();
+        where = size;
+#if RETRO_PLATFORM == RETRO_PS3
+        if (itemCount < 512)
+            itemCount++;
+        else
+            return 0;
+#else
         items.push_back(ConfigItem());
+#endif
     }
 
     strcpy(items[where].section, section);
@@ -243,7 +318,12 @@ int IniParser::SetBool(const char *section, const char *key, bool value)
 int IniParser::SetComment(const char *section, const char *key, const char *comment)
 {
     int where = -1;
-    for (int x = 0; x < items.size(); x++) {
+    int size  = (int)items.size();
+#if RETRO_PLATFORM == RETRO_PS3
+    size = itemCount;
+#endif
+
+    for (int x = 0; x < size; x++) {
         if (strcmp(section, items[x].section) == 0) {
             if (strcmp(key, items[x].key) == 0) {
                 where = x;
@@ -252,8 +332,15 @@ int IniParser::SetComment(const char *section, const char *key, const char *comm
         }
     }
     if (where < 0) {
-        where = (int)items.size();
+        where = size;
+#if RETRO_PLATFORM == RETRO_PS3
+        if (itemCount < 512)
+            itemCount++;
+        else
+            return 0;
+#else
         items.push_back(ConfigItem());
+#endif
     }
 
     strcpy(items[where].section, section);
