@@ -2,11 +2,14 @@
 
 #if RETRO_PLATFORM == RETRO_WIN && _MSC_VER
 #include <Windows.h>
+#if !defined(RETRO_PS3)
 #include <codecvt>
 #include "../dependencies/windows/ValveFileVDF/vdf_parser.hpp"
+#endif
 
 HKEY hKey;
 
+#if !defined(RETRO_PS3)
 LONG GetDWORDRegKey(HKEY hKey, const std::wstring &strValueName, DWORD &nValue, DWORD nDefaultValue)
 {
     nValue = nDefaultValue;
@@ -49,6 +52,7 @@ inline bool dirExists(const std::wstring &dirName_in)
 
     return false; // this is not a directory!
 }
+#endif
 #endif
 
 int globalVariablesCount;
@@ -628,7 +632,7 @@ void InitUserdata()
     }
 
     // Loaded here so it can be disabled
-#if RETRO_PLATFORM == RETRO_WIN && _MSC_VER
+#if RETRO_PLATFORM == RETRO_WIN && _MSC_VER && !defined(RETRO_PS3)
     if (Engine.useSteamDir) {
 #if _WIN64
         LONG lRes             = RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Wow6432Node\\Valve\\Steam", 0, KEY_READ, &hKey);

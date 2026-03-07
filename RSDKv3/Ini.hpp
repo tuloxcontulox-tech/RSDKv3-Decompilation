@@ -40,10 +40,11 @@ public:
     void Write(const char *filename, bool addPath = true);
 
 #if RETRO_PLATFORM == RETRO_PS3
+    int size() { return itemCount; }
     ConfigItem items[512];
     int itemCount;
-    int size() { return itemCount; }
 #else
+    int size() { return (int)items.size(); }
     std::vector<ConfigItem> items;
 #endif
 };
