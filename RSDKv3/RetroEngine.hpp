@@ -17,7 +17,11 @@
 #endif
 
 #ifndef RETRO_USE_MOD_LOADER
+#if defined(__PS3__) || defined(PS3) || defined(__CELLOS_LV2__)
+#define RETRO_USE_MOD_LOADER (0)
+#else
 #define RETRO_USE_MOD_LOADER (!RETRO_USE_ORIGINAL_CODE && 1)
+#endif
 #endif
 
 // Forces all DLC flags to be disabled, this should be enabled in any public releases

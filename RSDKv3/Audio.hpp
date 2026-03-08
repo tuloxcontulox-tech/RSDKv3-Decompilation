@@ -140,7 +140,13 @@ inline void ProcessMusicStream(int *stream, size_t bytes_wanted) {}
 inline void ProcessAudioPlayback(void *data, byte *stream, int len) {}
 inline void ProcessAudioMixing(int *dst, const short *src, int len, int volume, sbyte pan) {}
 
-inline void FreeMusInfo() { ov_clear(&streamInfo[currentStreamIndex].vorbisFile); }
+inline void FreeMusInfo()
+{
+    ov_clear(&streamInfo[currentStreamIndex].vorbisFile);
+    if (streamFile[currentStreamIndex].buffer)
+        free(streamFile[currentStreamIndex].buffer);
+    streamFile[currentStreamIndex].buffer = NULL;
+}
 #endif
 
 #if RETRO_USE_MOD_LOADER

@@ -1147,7 +1147,7 @@ void SetFullScreen(bool fs)
         SDL_GL_GetDrawableSize(Engine.window, &drawableWidth, &drawableHeight);
         SetScreenDimensions(SCREEN_XSIZE, SCREEN_YSIZE, drawableWidth, drawableHeight);
 #else
-        SetScreenDimensions(SCREEN_XSIZE, SCREEN_YSIZE, (int)(SCREEN_XSIZE * Engine.windowScale), (int)(SCREEN_YSIZE * Engine.windowScale));
+        SetScreenDimensions(SCREEN_XSIZE, SCREEN_YSIZE, (int)(float)(SCREEN_XSIZE * Engine.windowScale), (int)(float)(SCREEN_YSIZE * Engine.windowScale));
 #endif
 #endif
 #if RETRO_PLATFORM == RETRO_PS3
@@ -1189,38 +1189,38 @@ void ClearScreen(byte index)
         gfxPolyList[gfxVertexSize].colour.g = activePalette32[index].g;
         gfxPolyList[gfxVertexSize].colour.b = activePalette32[index].b;
         gfxPolyList[gfxVertexSize].colour.a = 0xFF;
-        gfxPolyList[gfxVertexSize].u        = 0;
-        gfxPolyList[gfxVertexSize].v        = 0;
+        gfxPolyList[gfxVertexSize].u        = (short)0;
+        gfxPolyList[gfxVertexSize].v        = (short)0;
 
         gfxVertexSize++;
-        gfxPolyList[gfxVertexSize].x        = SCREEN_XSIZE << 4;
-        gfxPolyList[gfxVertexSize].y        = 0;
+        gfxPolyList[gfxVertexSize].x        = (short)(SCREEN_XSIZE << 4);
+        gfxPolyList[gfxVertexSize].y        = (short)0;
         gfxPolyList[gfxVertexSize].colour.r = activePalette32[index].r;
         gfxPolyList[gfxVertexSize].colour.g = activePalette32[index].g;
         gfxPolyList[gfxVertexSize].colour.b = activePalette32[index].b;
         gfxPolyList[gfxVertexSize].colour.a = 0xFF;
-        gfxPolyList[gfxVertexSize].u        = 0;
-        gfxPolyList[gfxVertexSize].v        = 0;
+        gfxPolyList[gfxVertexSize].u        = (short)0;
+        gfxPolyList[gfxVertexSize].v        = (short)0;
 
         gfxVertexSize++;
-        gfxPolyList[gfxVertexSize].x        = 0;
-        gfxPolyList[gfxVertexSize].y        = SCREEN_YSIZE << 4;
+        gfxPolyList[gfxVertexSize].x        = (short)0;
+        gfxPolyList[gfxVertexSize].y        = (short)(SCREEN_YSIZE << 4);
         gfxPolyList[gfxVertexSize].colour.r = activePalette32[index].r;
         gfxPolyList[gfxVertexSize].colour.g = activePalette32[index].g;
         gfxPolyList[gfxVertexSize].colour.b = activePalette32[index].b;
         gfxPolyList[gfxVertexSize].colour.a = 0xFF;
-        gfxPolyList[gfxVertexSize].u        = 0;
-        gfxPolyList[gfxVertexSize].v        = 0;
+        gfxPolyList[gfxVertexSize].u        = (short)0;
+        gfxPolyList[gfxVertexSize].v        = (short)0;
 
         gfxVertexSize++;
-        gfxPolyList[gfxVertexSize].x        = SCREEN_XSIZE << 4;
-        gfxPolyList[gfxVertexSize].y        = SCREEN_YSIZE << 4;
+        gfxPolyList[gfxVertexSize].x        = (short)(SCREEN_XSIZE << 4);
+        gfxPolyList[gfxVertexSize].y        = (short)(SCREEN_YSIZE << 4);
         gfxPolyList[gfxVertexSize].colour.r = activePalette32[index].r;
         gfxPolyList[gfxVertexSize].colour.g = activePalette32[index].g;
         gfxPolyList[gfxVertexSize].colour.b = activePalette32[index].b;
         gfxPolyList[gfxVertexSize].colour.a = 0xFF;
-        gfxPolyList[gfxVertexSize].u        = 0;
-        gfxPolyList[gfxVertexSize].v        = 0;
+        gfxPolyList[gfxVertexSize].u        = (short)0;
+        gfxPolyList[gfxVertexSize].v        = (short)0;
         gfxVertexSize++;
 
         gfxIndexSize += 6;
@@ -1353,7 +1353,7 @@ void SetScreenDimensions(int width, int height, int winWidth, int winHeight)
     if (retroBuffer2x)
         glDeleteTextures(1, &retroBuffer2x);
 
-#if RETRO_USING_OPENGL
+#if 0 // Duplicate RETRO_USING_OPENGL block
     // Setup framebuffer texture
     int bufferW = 0;
     int bufferH = 0;

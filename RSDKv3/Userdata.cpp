@@ -1,15 +1,12 @@
 #include "RetroEngine.hpp"
 
-#if RETRO_PLATFORM == RETRO_WIN && _MSC_VER
+#if RETRO_PLATFORM == RETRO_WIN && _MSC_VER && !defined(RETRO_PS3)
 #include <Windows.h>
-#if !defined(RETRO_PS3)
 #include <codecvt>
 #include "../dependencies/windows/ValveFileVDF/vdf_parser.hpp"
-#endif
 
 HKEY hKey;
 
-#if !defined(RETRO_PS3)
 LONG GetDWORDRegKey(HKEY hKey, const std::wstring &strValueName, DWORD &nValue, DWORD nDefaultValue)
 {
     nValue = nDefaultValue;
@@ -52,7 +49,6 @@ inline bool dirExists(const std::wstring &dirName_in)
 
     return false; // this is not a directory!
 }
-#endif
 #endif
 
 int globalVariablesCount;
@@ -527,8 +523,8 @@ void InitUserdata()
         if (!ini.GetFloat("Audio", "SFXVolume", &sv))
             sv = 1.0f;
 
-        bgmVolume = bv * MAX_VOLUME;
-        sfxVolume = sv * MAX_VOLUME;
+        bgmVolume = (int)(float)(bv * MAX_VOLUME);
+        sfxVolume = (int)(float)(sv * MAX_VOLUME);
 
         if (bgmVolume > MAX_VOLUME)
             bgmVolume = MAX_VOLUME;
