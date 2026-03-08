@@ -1,5 +1,6 @@
 #include "RetroEngine.hpp"
-#include <string>
+#include <string.h>
+#include <ctype.h>
 
 int currentVideoFrame = 0;
 int videoFrameCount   = 0;
@@ -22,10 +23,10 @@ bool videoSkipped = false;
 static long videoRead(THEORAPLAY_Io *io, void *buf, long buflen)
 {
     FileIO *file    = (FileIO *)io->userdata;
-    const size_t br = fRead(buf, 1, buflen * sizeof(byte), file);
+    const size_t br = fRead(buf, 1, (size_t)buflen, file);
     if (br == 0)
         return -1;
-    return (int)br;
+    return (long)br;
 } // IoFopenRead
 
 static void videoClose(THEORAPLAY_Io *io)
