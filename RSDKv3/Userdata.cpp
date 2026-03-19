@@ -1,6 +1,6 @@
 #include "RetroEngine.hpp"
 
-#if RETRO_PLATFORM == RETRO_WIN && _MSC_VER
+#if RETRO_PLATFORM == RETRO_WIN && _MSC_VER && !defined(RETRO_PS3)
 #include <Windows.h>
 #include <codecvt>
 #include "../dependencies/windows/ValveFileVDF/vdf_parser.hpp"
@@ -523,8 +523,8 @@ void InitUserdata()
         if (!ini.GetFloat("Audio", "SFXVolume", &sv))
             sv = 1.0f;
 
-        bgmVolume = bv * MAX_VOLUME;
-        sfxVolume = sv * MAX_VOLUME;
+        bgmVolume = (int)(float)(bv * MAX_VOLUME);
+        sfxVolume = (int)(float)(sv * MAX_VOLUME);
 
         if (bgmVolume > MAX_VOLUME)
             bgmVolume = MAX_VOLUME;
@@ -628,7 +628,7 @@ void InitUserdata()
     }
 
     // Loaded here so it can be disabled
-#if RETRO_PLATFORM == RETRO_WIN && _MSC_VER
+#if RETRO_PLATFORM == RETRO_WIN && _MSC_VER && !defined(RETRO_PS3)
     if (Engine.useSteamDir) {
 #if _WIN64
         LONG lRes             = RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Wow6432Node\\Valve\\Steam", 0, KEY_READ, &hKey);

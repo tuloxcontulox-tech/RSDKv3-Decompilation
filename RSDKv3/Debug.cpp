@@ -67,8 +67,8 @@ void InitDevMenu()
     SetActivePalette(0, 0, 256);
     textMenuSurfaceNo = 0;
     LoadGIFFile("Data/Game/SystemText.gif", 0);
-    SetPaletteEntry(-1, 0xF0, 0x00, 0x00, 0x00);
-    SetPaletteEntry(-1, 0xFF, 0xFF, 0xFF, 0xFF);
+    SetPaletteEntry((byte)0xFF, 0xF0, 0x00, 0x00, 0x00);
+    SetPaletteEntry((byte)0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
     stageMode = DEVMENU_MAIN;
     SetupTextMenu(&gameMenu[0], 0);
     AddTextMenuEntry(&gameMenu[0], "RETRO ENGINE DEV MENU");
@@ -127,8 +127,8 @@ void InitErrorMessage()
     SetActivePalette(0, 0, 256);
     textMenuSurfaceNo = 0;
     LoadGIFFile("Data/Game/SystemText.gif", 0);
-    SetPaletteEntry(-1, 0xF0, 0x00, 0x00, 0x00);
-    SetPaletteEntry(-1, 0xFF, 0xFF, 0xFF, 0xFF);
+    SetPaletteEntry((byte)0xFF, 0xF0, 0x00, 0x00, 0x00);
+    SetPaletteEntry((byte)0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
     gameMenu[0].alignment        = 2;
     gameMenu[0].selectionCount   = 1;
     gameMenu[0].selection1       = 0;

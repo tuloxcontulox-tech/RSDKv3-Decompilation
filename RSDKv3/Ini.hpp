@@ -1,7 +1,9 @@
 #ifndef INI_H
 #define INI_H
 
+#if RETRO_PLATFORM != RETRO_PS3
 #include <vector>
+#endif
 
 class IniParser
 {
@@ -15,22 +17,15 @@ public:
     };
 
     struct ConfigItem {
-        ConfigItem()
-        {
-            sprintf(section, "%s", "");
-            sprintf(key, "%s", "");
-            sprintf(value, "%s", "");
-            hasSection = false;
-            type       = INI_ITEM_STRING;
-        }
+        ConfigItem();
         char section[0x20];
-        bool hasSection = false;
+        bool hasSection;
         char key[0x40];
         char value[0x100];
-        byte type = INI_ITEM_STRING;
+        byte type;
     };
 
-    IniParser() { items.clear(); }
+    IniParser();
     IniParser(const char *filename, bool addPath = true);
 
     int GetString(const char *section, const char *key, char *dest);
@@ -44,6 +39,13 @@ public:
     int SetComment(const char *section, const char *key, const char *comment);
     void Write(const char *filename, bool addPath = true);
 
+#if RETRO_PLATFORM == RETRO_PS3
+    int size() { return itemCount; }
+    ConfigItem items[512];
+    int itemCount;
+#else
+    int size() { return (int)items.size(); }
     std::vector<ConfigItem> items;
+#endif
 };
 #endif // !INI_H

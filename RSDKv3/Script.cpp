@@ -1495,7 +1495,7 @@ void AppendIntegerToString(char *text, int value)
 
     v = 0;
     for (int i = cnt - 1; i >= 0; --i) {
-        v = value / pow(10, i);
+        v = value / (int)pow(10.0, i);
         v %= 10;
 
         int strValue = v + '0';
@@ -2876,7 +2876,7 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptSub)
         ObjectScript *scriptInfo = &objectScriptList[objectEntityList[objectLoop].type];
         Entity *entity           = &objectEntityList[objectLoop];
         Player *player           = &playerList[activePlayer];
-        SpriteFrame *spriteFrame = nullptr;
+        SpriteFrame *spriteFrame = NULL;
 
         // Functions
         switch (opcode) {

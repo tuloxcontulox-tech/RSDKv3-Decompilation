@@ -1,7 +1,5 @@
 #include "RetroEngine.hpp"
 #include <cmath>
-#include <iostream>
-#include <thread>
 
 int globalSFXCount = 0;
 int stageSFXCount  = 0;
@@ -56,7 +54,7 @@ int InitAudioPlayback()
     want.callback = ProcessAudioPlayback;
 
 #if RETRO_USING_SDL2
-    if ((audioDevice = SDL_OpenAudioDevice(nullptr, 0, &want, &audioDeviceFormat, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE)) > 0) {
+    if ((audioDevice = SDL_OpenAudioDevice(NULL, 0, &want, &audioDeviceFormat, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE)) > 0) {
         audioEnabled = true;
         SDL_PauseAudioDevice(audioDevice, 0);
         PrintLog("Opened audio device: %d", audioDevice);
@@ -214,7 +212,8 @@ long tellVorbis(void *ptr)
 }
 int closeVorbis(void *ptr) { return 1; }
 
-void ProcessMusicStream(Sint32 *stream, size_t bytes_wanted)
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2
+void ProcessMusicStream(int *stream, size_t bytes_wanted)
 {
     if (!streamFilePtr || !streamInfoPtr)
         return;
@@ -251,7 +250,7 @@ void ProcessMusicStream(Sint32 *stream, size_t bytes_wanted)
                 return;
             }
             if (bytes_done != 0)
-                ProcessAudioMixing(stream, streamInfoPtr->buffer, bytes_done / sizeof(Sint16), (bgmVolume * masterVolume) / MAX_VOLUME, 0);
+                ProcessAudioMixing(stream, streamInfoPtr->buffer, bytes_done / sizeof(short), (bgmVolume * masterVolume) / MAX_VOLUME, 0);
 #endif
 
 #if RETRO_USING_SDL1
@@ -301,7 +300,7 @@ void ProcessMusicStream(Sint32 *stream, size_t bytes_wanted)
                 }
 
                 if (cvtResult == 0)
-                    ProcessAudioMixing(stream, (const Sint16 *)convert.buf, bytes_gotten / sizeof(Sint16), (bgmVolume * masterVolume) / MAX_VOLUME,
+                    ProcessAudioMixing(stream, (const short *)convert.buf, bytes_gotten / sizeof(short), (bgmVolume * masterVolume) / MAX_VOLUME,
                                        0);
 
                 if (convert.len > 0 && convert.buf)
@@ -319,31 +318,33 @@ void ProcessMusicStream(Sint32 *stream, size_t bytes_wanted)
             break;
     }
 }
+#endif
 
-void ProcessAudioPlayback(void *userdata, Uint8 *stream, int len)
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2
+void ProcessAudioPlayback(void *userdata, byte *stream, int len)
 {
     (void)userdata; // Unused
 
     if (!audioEnabled)
         return;
 
-    Sint16 *output_buffer = (Sint16 *)stream;
+    short *output_buffer = (short *)stream;
 
-    size_t samples_remaining = (size_t)len / sizeof(Sint16);
+    size_t samples_remaining = (size_t)len / sizeof(short);
     while (samples_remaining != 0) {
-        Sint32 mix_buffer[MIX_BUFFER_SAMPLES];
+        int mix_buffer[MIX_BUFFER_SAMPLES];
         memset(mix_buffer, 0, sizeof(mix_buffer));
 
         const size_t samples_to_do = (samples_remaining < MIX_BUFFER_SAMPLES) ? samples_remaining : MIX_BUFFER_SAMPLES;
 
         // Mix music
-        ProcessMusicStream(mix_buffer, samples_to_do * sizeof(Sint16));
+        ProcessMusicStream(mix_buffer, samples_to_do * sizeof(short));
 
 #if RETRO_USING_SDL2
         // Process music being played by a ogv video
         if (videoPlaying == 1) {
             // Fetch THEORAPLAY audio packets, and shove them into the SDL Audio Stream
-            const size_t bytes_to_do = samples_to_do * sizeof(Sint16);
+            const size_t bytes_to_do = samples_to_do * sizeof(short);
 
             const THEORAPLAY_AudioPacket *packet;
 
@@ -352,7 +353,7 @@ void ProcessAudioPlayback(void *userdata, Uint8 *stream, int len)
                 THEORAPLAY_freeAudio(packet);
             }
 
-            Sint16 buffer[MIX_BUFFER_SAMPLES];
+            short buffer[MIX_BUFFER_SAMPLES];
 
             // If we need more samples, assume we've reached the end of the file,
             // and flush the audio stream so we can get more. If we were wrong, and
@@ -365,7 +366,7 @@ void ProcessAudioPlayback(void *userdata, Uint8 *stream, int len)
 
             // Mix the converted audio data into the final output
             if (get != -1)
-                ProcessAudioMixing(mix_buffer, buffer, get / sizeof(Sint16), bgmVolume, 0);
+                ProcessAudioMixing(mix_buffer, buffer, get / sizeof(short), bgmVolume, 0);
         }
         else {
             SDL_AudioStreamClear(ogv_stream); // Prevent leftover audio from playing at the start of the next video
@@ -377,7 +378,7 @@ void ProcessAudioPlayback(void *userdata, Uint8 *stream, int len)
         // TODO: SDL1.2 lacks SDL_AudioStream so until someone finds good way to replicate that, I'm gonna leave this commented out
         /*if (videoPlaying) {
             // Fetch THEORAPLAY audio packets
-            const size_t bytes_to_do = samples_to_do * sizeof(Sint16);
+            const size_t bytes_to_do = samples_to_do * sizeof(short);
             size_t bytes_done        = 0;
 
             byte *vid_buffer             = (byte *)malloc(bytes_to_do);
@@ -394,7 +395,7 @@ void ProcessAudioPlayback(void *userdata, Uint8 *stream, int len)
                 THEORAPLAY_freeAudio(packet);
             }
 
-            Sint16 convBuffer[MIX_BUFFER_SAMPLES];
+            short convBuffer[MIX_BUFFER_SAMPLES];
 
             // If we need more samples, assume we've reached the end of the file,
             // and flush the audio stream so we can get more. If we were wrong, and
@@ -418,7 +419,7 @@ void ProcessAudioPlayback(void *userdata, Uint8 *stream, int len)
                 }
 
                 if (cvtResult == 0)
-                    ProcessAudioMixing(mix_buffer, (const Sint16 *)convert.buf, bytes_done / sizeof(Sint16), MAX_VOLUME, 0);
+                    ProcessAudioMixing(mix_buffer, (const short *)convert.buf, bytes_done / sizeof(short), MAX_VOLUME, 0);
 
                 if (convert.len > 0 && convert.buf)
                     free(convert.buf);
@@ -436,12 +437,12 @@ void ProcessAudioPlayback(void *userdata, Uint8 *stream, int len)
                 continue;
 
             if (sfx->samplePtr) {
-                Sint16 buffer[MIX_BUFFER_SAMPLES];
+                short buffer[MIX_BUFFER_SAMPLES];
 
                 size_t samples_done = 0;
                 while (samples_done != samples_to_do) {
                     size_t sampleLen = (sfx->sampleLength < samples_to_do - samples_done) ? sfx->sampleLength : samples_to_do - samples_done;
-                    memcpy(&buffer[samples_done], sfx->samplePtr, sampleLen * sizeof(Sint16));
+                    memcpy(&buffer[samples_done], sfx->samplePtr, sampleLen * sizeof(short));
 
                     samples_done += sampleLen;
                     sfx->samplePtr += sampleLen;
@@ -460,18 +461,16 @@ void ProcessAudioPlayback(void *userdata, Uint8 *stream, int len)
                     }
                 }
 
-#if RETRO_USING_SDL1 || RETRO_USING_SDL2
                 ProcessAudioMixing(mix_buffer, buffer, (int)samples_done, sfxVolume, sfx->pan);
-#endif
             }
         }
 
         // Clamp mixed samples back to 16-bit and write them to the output buffer
         for (size_t i = 0; i < sizeof(mix_buffer) / sizeof(*mix_buffer); ++i) {
-            const Sint16 max_audioval = ((1 << (16 - 1)) - 1);
-            const Sint16 min_audioval = -(1 << (16 - 1));
+            const short max_audioval = ((1 << (16 - 1)) - 1);
+            const short min_audioval = -(1 << (16 - 1));
 
-            const Sint32 sample = mix_buffer[i];
+            const int sample = mix_buffer[i];
 
             if (sample > max_audioval)
                 *output_buffer++ = max_audioval;
@@ -486,7 +485,7 @@ void ProcessAudioPlayback(void *userdata, Uint8 *stream, int len)
 }
 
 #if RETRO_USING_SDL1 || RETRO_USING_SDL2
-void ProcessAudioMixing(Sint32 *dst, const Sint16 *src, int len, int volume, sbyte pan)
+void ProcessAudioMixing(int *dst, const short *src, int len, int volume, sbyte pan)
 {
     if (volume == 0)
         return;
@@ -508,7 +507,7 @@ void ProcessAudioMixing(Sint32 *dst, const Sint16 *src, int len, int volume, sby
     }
 
     while (len--) {
-        Sint32 sample = *src++;
+        int sample = *src++;
         ADJUST_VOLUME(sample, volume);
 
         if (pan != 0) {
@@ -525,6 +524,7 @@ void ProcessAudioMixing(Sint32 *dst, const Sint16 *src, int len, int volume, sby
         i++;
     }
 }
+#endif
 #endif
 
 #if RETRO_USE_MOD_LOADER
@@ -711,15 +711,15 @@ void LoadSfx(char *filePath, byte sfxID)
                     SDL_ConvertAudio(&convert);
 
                     StrCopy(sfxList[sfxID].name, filePath);
-                    sfxList[sfxID].buffer = (Sint16 *)convert.buf;
-                    sfxList[sfxID].length = convert.len_cvt / sizeof(Sint16);
+                    sfxList[sfxID].buffer = (short *)convert.buf;
+                    sfxList[sfxID].length = convert.len_cvt / sizeof(short);
                     sfxList[sfxID].loaded = true;
                     SDL_FreeWAV(wav_buffer);
                 }
                 else {
                     StrCopy(sfxList[sfxID].name, filePath);
-                    sfxList[sfxID].buffer = (Sint16 *)wav_buffer;
-                    sfxList[sfxID].length = wav_length / sizeof(Sint16);
+                    sfxList[sfxID].buffer = (short *)wav_buffer;
+                    sfxList[sfxID].length = wav_length / sizeof(short);
                     sfxList[sfxID].loaded = true;
                 }
             }

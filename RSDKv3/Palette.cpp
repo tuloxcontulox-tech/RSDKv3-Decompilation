@@ -50,7 +50,7 @@ void LoadPalette(const char *filePath, int paletteID, int startPaletteIndex, int
         else {
             for (int i = startIndex; i < endIndex; ++i) {
                 FileRead(&colour, 3);
-                SetPaletteEntry(-1, startPaletteIndex++, colour[0], colour[1], colour[2]);
+                SetPaletteEntry((byte)0xFF, startPaletteIndex++, colour[0], colour[1], colour[2]);
             }
         }
         CloseFile();

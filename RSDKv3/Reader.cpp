@@ -21,7 +21,7 @@ char encryptionStringB[] = { "3tRaUxLmEaSn" };
 byte isModdedFile = false;
 #endif
 
-FileIO *cFileHandle = nullptr;
+FileIO *cFileHandle = NULL;
 
 bool CheckRSDKFile(const char *filePath)
 {
@@ -82,8 +82,6 @@ bool CheckRSDKFile(const char *filePath)
         }
         return false;
     }
-
-    return false;
 }
 
 inline bool ends_with(std::string const &value, std::string const &ending)
@@ -115,7 +113,13 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
     fileInfo->isMod = false;
     isModdedFile    = false;
 #endif
+
+#if RETRO_USE_MOD_LOADER || RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_ANDROID
     bool addPath = true;
+#else
+    bool addPath = true;
+    (void)addPath;
+#endif
     // Fixes ".ani" ".Ani" bug and any other case differences
     char pathLower[0x100];
     memset(pathLower, 0, sizeof(char) * 0x100);
@@ -402,8 +406,6 @@ bool ParseVirtualFileSystem(FileInfo *fileInfo)
         Engine.usingDataFile = true;
         return true;
     }
-    // Engine.usingDataFile = true;
-    return false;
 }
 
 void FileRead(void *dest, int size)

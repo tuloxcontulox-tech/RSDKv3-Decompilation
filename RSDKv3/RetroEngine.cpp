@@ -369,18 +369,22 @@ void RetroEngine::Init()
 
 void RetroEngine::Run()
 {
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2
     unsigned long long targetFreq = SDL_GetPerformanceFrequency() / Engine.refreshRate;
     unsigned long long curTicks   = 0;
     unsigned long long prevTicks  = 0;
+#endif
 
     while (running) {
 #if !RETRO_USE_ORIGINAL_CODE
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2
         if (!vsync) {
             curTicks = SDL_GetPerformanceCounter();
             if (curTicks < prevTicks + targetFreq)
                 continue;
             prevTicks = curTicks;
         }
+#endif
 #endif
         running = ProcessEvents();
 
@@ -581,7 +585,7 @@ void RetroEngine::LoadXMLWindowText()
             bool success = doc->Parse(xmlData) == tinyxml2::XML_SUCCESS;
 
             if (success) {
-                const tinyxml2::XMLElement *gameElement  = FirstXMLChildElement(doc, nullptr, "game");
+                const tinyxml2::XMLElement *gameElement  = FirstXMLChildElement(doc, NULL, "game");
                 const tinyxml2::XMLElement *titleElement = FirstXMLChildElement(doc, gameElement, "title");
                 if (titleElement) {
                     const tinyxml2::XMLAttribute *nameAttr = FindXMLAttribute(titleElement, "name");
@@ -616,7 +620,7 @@ void RetroEngine::LoadXMLVariables()
             bool success = doc->Parse(xmlData) == tinyxml2::XML_SUCCESS;
 
             if (success) {
-                const tinyxml2::XMLElement *gameElement      = FirstXMLChildElement(doc, nullptr, "game");
+                const tinyxml2::XMLElement *gameElement      = FirstXMLChildElement(doc, NULL, "game");
                 const tinyxml2::XMLElement *variablesElement = FirstXMLChildElement(doc, gameElement, "variables");
                 if (variablesElement) {
                     const tinyxml2::XMLElement *varElement = FirstXMLChildElement(doc, variablesElement, "variable");
@@ -670,7 +674,7 @@ void RetroEngine::LoadXMLPalettes()
             bool success = doc->Parse(xmlData) == tinyxml2::XML_SUCCESS;
 
             if (success) {
-                const tinyxml2::XMLElement *gameElement    = FirstXMLChildElement(doc, nullptr, "game");
+                const tinyxml2::XMLElement *gameElement    = FirstXMLChildElement(doc, NULL, "game");
                 const tinyxml2::XMLElement *paletteElement = FirstXMLChildElement(doc, gameElement, "palette");
                 if (paletteElement) {
                     for (const tinyxml2::XMLElement *clrElement = paletteElement->FirstChildElement("color"); clrElement;
@@ -734,9 +738,9 @@ void RetroEngine::LoadXMLPalettes()
                                 start = 4;
                             }
 
-                            r = std::stoi(match[start + 0].str(), nullptr, base);
-                            g = std::stoi(match[start + 1].str(), nullptr, base);
-                            b = std::stoi(match[start + 2].str(), nullptr, base);
+                            r = std::stoi(match[start + 0].str(), NULL, base);
+                            g = std::stoi(match[start + 1].str(), NULL, base);
+                            b = std::stoi(match[start + 2].str(), NULL, base);
 
                             SetPaletteEntry(bank, index++, r, g, b);
                             text = match.suffix();
@@ -773,7 +777,7 @@ void RetroEngine::LoadXMLObjects()
             bool success = doc->Parse(xmlData) == tinyxml2::XML_SUCCESS;
 
             if (success) {
-                const tinyxml2::XMLElement *gameElement    = FirstXMLChildElement(doc, nullptr, "game");
+                const tinyxml2::XMLElement *gameElement    = FirstXMLChildElement(doc, NULL, "game");
                 const tinyxml2::XMLElement *objectsElement = FirstXMLChildElement(doc, gameElement, "objects");
                 if (objectsElement) {
                     const tinyxml2::XMLElement *objElement = FirstXMLChildElement(doc, objectsElement, "object");
@@ -840,7 +844,7 @@ void RetroEngine::LoadXMLSoundFX()
             bool success = doc->Parse(xmlData) == tinyxml2::XML_SUCCESS;
 
             if (success) {
-                const tinyxml2::XMLElement *gameElement   = FirstXMLChildElement(doc, nullptr, "game");
+                const tinyxml2::XMLElement *gameElement   = FirstXMLChildElement(doc, NULL, "game");
                 const tinyxml2::XMLElement *soundsElement = FirstXMLChildElement(doc, gameElement, "sounds");
                 if (soundsElement) {
                     const tinyxml2::XMLElement *sfxElement = FirstXMLChildElement(doc, soundsElement, "soundfx");
@@ -894,7 +898,7 @@ void RetroEngine::LoadXMLPlayers(TextMenu *menu)
             bool success = doc->Parse(xmlData) == tinyxml2::XML_SUCCESS;
 
             if (success) {
-                const tinyxml2::XMLElement *gameElement   = FirstXMLChildElement(doc, nullptr, "game");
+                const tinyxml2::XMLElement *gameElement   = FirstXMLChildElement(doc, NULL, "game");
                 const tinyxml2::XMLElement *playerElement = FirstXMLChildElement(doc, gameElement, "players");
                 if (playerElement) {
                     const tinyxml2::XMLElement *plrElement = FirstXMLChildElement(doc, playerElement, "player");
@@ -948,7 +952,7 @@ void RetroEngine::LoadXMLStages(TextMenu *menu, int listNo)
             if (success) {
                 const char *elementNames[] = { "presentationStages", "regularStages", "bonusStages", "specialStages" };
 
-                const tinyxml2::XMLElement *gameElement = FirstXMLChildElement(doc, nullptr, "game");
+                const tinyxml2::XMLElement *gameElement = FirstXMLChildElement(doc, NULL, "game");
                 for (int l = 0; l < STAGELIST_MAX; ++l) {
                     const tinyxml2::XMLElement *listElement = FirstXMLChildElement(doc, gameElement, elementNames[l]);
                     if (listElement) {
